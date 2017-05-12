@@ -1,0 +1,9 @@
+version: '2.1'
+
+services:
+  composer:
+    image: oroinc/composer:1.4
+    environment:
+      - SYMFONY_ENV
+      - SYMFONY_DEBUG
+      - ORO_INSTALLED

@@ -1,0 +1,33 @@
+version: '2.1'
+
+services:
+  data:
+    extends:
+      file: data.yml
+      service: data
+  
+  composer:
+    extends:
+      file: composer/composer.yml
+      service: composer
+    command: /bin/true
+    volumes_from:
+      - data
+
+  php:
+    extends:
+      file: php/php.yml
+      service: php
+    depends_on:
+      - composer
+      - data
+    volumes_from:
+      - data
+    logging:
+      driver: ${DOCKER_LOG_DRIVER:-json-file}
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.${NETWORK:-173}.${SUB_NETWORK:-0}.0/27

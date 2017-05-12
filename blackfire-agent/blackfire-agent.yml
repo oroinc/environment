@@ -1,0 +1,8 @@
+version: '2.1'
+
+services:
+  blackfire-agent:
+    image: blackfire/blackfire
+    environment:
+      - BLACKFIRE_SERVER_ID
+      - BLACKFIRE_SERVER_TOKEN

@@ -1,0 +1,11 @@
+version: '2.1'
+
+services:
+  browser:
+    extends:
+      file: phantomjs.yml
+      service: phantomjs${PHANTOMJS:-2.1}
+
+  phantomjs2.1:
+    image: wernight/phantomjs:2.1.1
+    command: phantomjs --webdriver=8910 --ignore-ssl-errors=true

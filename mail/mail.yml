@@ -1,0 +1,16 @@
+version: '2.1'
+
+services:
+  mail:
+    image: mailhog/mailhog
+    expose:
+      - "25"
+      - "80"
+    environment:
+      - MH_SMTP_BIND_ADDR=0.0.0.0:1025
+      - MH_UI_BIND_ADDR=0.0.0.0:1080
+      - MH_API_BIND_ADDR=0.0.0.0:1080
+    networks:
+      default:
+        aliases:
+          - mail

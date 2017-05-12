@@ -1,0 +1,2 @@
+ORO_MQ_TRANSPORT="amqp"
+ORO_MQ_TRANSPORT_CONFIG={host: 'mq', port: 5672, user: 'oro_mq_user', password: 'oro_mq_pass', vhost: '/'}

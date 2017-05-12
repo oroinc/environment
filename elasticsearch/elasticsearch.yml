@@ -1,0 +1,19 @@
+version: '2.1'
+
+services:
+  elasticsearch:
+    extends:
+      file: elasticsearch.yml
+      service: elasticsearch${ELASTIC_SEARCH:-2.4}
+    expose:
+      - "9200"
+      - "9300"
+
+  elasticsearch1.7:
+    image: oroinc/elasticsearch:1.7-alpine
+
+  elasticsearch2.3:
+    image: oroinc/elasticsearch:2.3
+
+  elasticsearch2.4:
+    image: oroinc/elasticsearch:2.4-alpine

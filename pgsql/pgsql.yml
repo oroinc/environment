@@ -1,0 +1,16 @@
+version: '2.1'
+
+services:
+  database:
+    extends:
+      file: pgsql.yml
+      service: pgsql${PGSQL:-9.5}
+
+  pgsql9.5:
+    image: oroinc/pgsql:${PATCH:-9.5}
+    environment:
+      POSTGRES_DB: oro_db
+      POSTGRES_USER: oro_db_user
+      POSTGRES_PASSWORD: oro_db_pass
+    expose:
+        - "5432"

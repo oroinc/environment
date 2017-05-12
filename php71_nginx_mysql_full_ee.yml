@@ -1,0 +1,136 @@
+version: '2.1'
+
+services:
+  data:
+    extends:
+      file: data.yml
+      service: data
+  
+  composer:
+    extends:
+      file: composer/composer.yml
+      service: composer
+    command: 'install --prefer-dist --no-suggest --optimize-autoloader --no-interaction --ignore-platform-reqs'
+    volumes_from:
+      - data
+    env_file: 
+      - env/mysql
+      - env/elastic_search
+      - env/rabbitmq
+    environment:
+      - ORO_VERBOSE=1
+
+  database:
+    extends:
+      file: mysql/mysql.yml
+      service: database
+    volumes_from:
+      - data
+
+  php:
+    extends:
+      file: php/php.yml
+      service: php
+    depends_on:
+      - composer
+      - data
+    links:
+      - database
+    volumes_from:
+      - data
+    env_file: 
+      - env/mysql
+      - env/elastic_search
+      - env/rabbitmq
+    environment:
+      - ORO_VERBOSE=1
+
+  websocket:
+    extends:
+      file: websocket/websocket.yml
+      service: websocket
+    depends_on:
+      - composer
+      - data
+      - php
+    links:
+      - database
+    volumes_from:
+      - data
+    env_file: 
+      - env/mysql
+      - env/elastic_search
+      - env/rabbitmq
+    environment:
+      - ORO_VERBOSE=1
+
+  consumer:
+    extends:
+      file: consumer/consumer.yml
+      service: consumer
+    depends_on:
+      - composer
+      - data
+      - php
+      - search
+      - mq
+    links:
+      - database
+    volumes_from:
+      - data
+    env_file: 
+      - env/mysql
+      - env/elastic_search
+      - env/rabbitmq
+    environment:
+      - ORO_VERBOSE=1
+
+  cron:
+    extends:
+      file: cron/cron.yml
+      service: cron
+    depends_on:
+      - composer
+      - data
+      - php
+      - search
+      - mq
+    links:
+      - database
+    volumes_from:
+      - data
+    env_file: 
+      - env/mysql
+      - env/elastic_search
+      - env/rabbitmq
+    environment:
+      - ORO_VERBOSE=1
+
+  webserver:
+    extends:
+      file: nginx/nginx.yml
+      service: nginx
+    links:
+      - php
+    volumes_from:
+      - data
+    depends_on:
+      - websocket
+      - php
+    environment:
+      - ORO_VERBOSE=1
+
+  mail:
+    extends:
+      file: mail/mail.yml
+      service: mail
+      
+  search:
+    extends:
+      file: elasticsearch/elasticsearch.yml
+      service: elasticsearch
+  
+  mq:
+    extends:
+      file: rabbitmq/rabbitmq.yml
+      service: rabbitmq

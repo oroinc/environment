@@ -1,0 +1,26 @@
+version: '2.1'
+
+services:
+  php:
+    extends:
+      file: php.yml
+      service: php${PHP:-7.1}
+    environment:
+      - BLACKFIRE_SERVER_ID
+      - BLACKFIRE_SERVER_TOKEN
+      - SYMFONY_ENV
+      - SYMFONY_DEBUG
+    cap_add:
+      - SYS_PTRACE
+
+  php5.6:
+    image: oroinc/php:5.6-fpm-xenial
+
+  php7.0:
+    image: oroinc/php:7.0-fpm-xenial
+
+  php7.1:
+    image: oroinc/php:7.1-fpm-xenial
+
+  db:
+    image: oroinc/php:7.1-fpm-xenial-db

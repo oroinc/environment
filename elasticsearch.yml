@@ -1,0 +1,9 @@
+version: '2.1'
+
+services:
+  search:
+    extends:
+      file: elasticsearch/elasticsearch.yml
+      service: elasticsearch
+    volumes_from:
+      - data

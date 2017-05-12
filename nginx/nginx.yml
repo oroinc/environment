@@ -1,0 +1,14 @@
+version: '2.1'
+
+services:
+  nginx:
+    extends:
+      file: nginx.yml
+      service: nginx${NGINX:-1.11}
+
+  nginx1.11:
+    image: oroinc/nginx:1.11-alpine
+    ports:
+      - "80"
+    environment:
+      - SYMFONY_ENV

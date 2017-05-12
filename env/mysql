@@ -1,0 +1,7 @@
+ORO_DB_DRIVER=pdo_mysql
+ORO_DB_HOST=database
+ORO_DB_PORT=3306
+ORO_DB_NAME=oro_db
+ORO_DB_USER=oro_db_user
+ORO_DB_PASSWORD=oro_db_pass
+ORO_WS_BACKEND_HOST=websocket

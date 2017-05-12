@@ -1,0 +1,4 @@
+[mysqld]
+datadir=/var/lib/mysql_data
+wait_timeout=36000
+max_allowed_packet=33554432

@@ -1,0 +1,22 @@
+version: '2.1'
+
+services:
+  rabbitmq:
+    extends:
+      file: rabbitmq.yml
+      service: rabbitmq${RABBITMQ:-3.6}
+
+  rabbitmq3.6:
+    image: oroinc/rabbitmq:3.6-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: oro_mq_user
+      RABBITMQ_DEFAULT_PASS: oro_mq_pass
+    ports:
+      - "15672"
+    expose:
+      - "4369"
+      - "5671"
+      - "5672"
+      - "25672"
+      - "15671"
+      - "15672"
