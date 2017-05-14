@@ -27,19 +27,19 @@ case "${STEP}" in
     { cd "${APPLICATION}";
       git diff --name-only --diff-filter=ACMR "${COMMIT_RANGE}" > "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff.log";
     cd "${BUILD_DIR}"; }
-    
+
     echo "Defining strategy for Behat Tests...";
     if [ "${FULL_BUILD}" == "true" ]; then
       echo "Full build is detected. Run all";
       return 0;
     fi
-    { set +e; files=$(grep -e "^application/" -e "^package/" -r --exclude=\*.{msi,ods,psd,bat,gif,gitignore,gitkeep,html,jpg,jpeg,md,mp4,png,py,rst,txt,gliffy} "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff.log"); set -e; }
+    { set +e; files=$(grep -e "^application/" -e "^package/" -e "^Jenkinsfile" -e "^.jenkins" -r --exclude=\*.{msi,ods,psd,bat,gif,gitignore,gitkeep,html,jpg,jpeg,md,mp4,png,py,rst,txt,gliffy} "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff.log"); set -e; }
     if [[ "${files}" ]]; then
       echo "Package or application changes were detected";
     else
       echo "Documentation build not required!";
       export CI_SKIP=1;
-      
+
       exit 0;
     fi
   ;;
@@ -51,7 +51,7 @@ case "${STEP}" in
 
     # todo: health check database
     sleep 15s;
-    
+
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
@@ -72,12 +72,12 @@ case "${STEP}" in
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     run php cp behat.yml.dist behat.yml;
-    
+
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     run php sed -i "s/base_url:.*$/base_url: 'http:\/\/webserver:80\/'/g" behat.yml;
-    
+
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
@@ -100,16 +100,16 @@ case "${STEP}" in
   before_script)
     declare -a CONTAINERS=(data data-cache database);
     PATCH=${PROJECT_NAME};
-    
+
     for CONTAINER in "${CONTAINERS[@]}"
     do
       CONTAINER_ID=$(docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME} ps -q ${CONTAINER});
       IMAGE="$(docker inspect --format='{{.Config.Image}}' "${CONTAINER_ID}" | cut -d':' -f1)";
       docker commit "${CONTAINER_ID}" "${IMAGE}:${PATCH}";
     done
-    
+
     export PATCH;
-    
+
     if [ -n "${PARALLEL_PROCESSES}" ]; then
       for I in $(seq 1 "${PARALLEL_PROCESSES}"); do
         SUB_NETWORK=${I} docker-compose \
@@ -118,18 +118,18 @@ case "${STEP}" in
         up -d &
       done
     fi
-    
+
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     run php bin/behat --available-suites | grep -v OroInstallerBundle | uniq | sort | grep -v 'export' | tr -d '\r' \
     > "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/testsuites.log";
-    
+
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     stop;
-    
+
     # todo: health check database
     sleep 30s;
   ;;
@@ -152,29 +152,29 @@ case "${STEP}" in
         -f ${COMPOSE_FILE} \
         -p ${PROJECT_NAME}_${I} \
         logs --no-color --timestamps > "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/docker.${I}.log";
-        
+
         docker-compose \
         -f ${COMPOSE_FILE} \
         -p ${PROJECT_NAME}_${I} \
         down -v;
       done
     fi
-    
+
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     logs --no-color --timestamps > "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/docker.log";
-    
+
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     down -v;
-    
+
     rm -f "${APPLICATION}/behat.yml" || true;
     rm -f "${APPLICATION}/app/config/parameters.yml" || true;
-    
+
     docker images | grep "${PROJECT_NAME}" | awk '{print $3}' | xargs docker rmi -f;
-    
+
     unset PATCH;
     set -e;
   ;;
