@@ -18,7 +18,8 @@ PROJECT_NAME=${PROJECT_NAME:-"$(env | grep -v PATCH | grep -v CI_SKIP | grep -v 
 PARALLEL_PROCESSES=${PARALLEL_PROCESSES-2};
 TEST_RUNNER_OPTIONS=${TEST_RUNNER_OPTIONS};
 TEST_SUITE=${TEST_SUITE:-behat};
-COMMIT_RANGE=${COMMIT_RANGE:-"origin/master...$(git rev-parse --verify HEAD)"};
+CHANGE_TARGET=${CHANGE_TARGET-master}
+COMMIT_RANGE=${COMMIT_RANGE:-"origin/$CHANGE_TARGET...$(git rev-parse --verify HEAD)"};
 COMPOSE_FILE=${BUILD_DIR}/behat.yml;
 
 case "${STEP}" in

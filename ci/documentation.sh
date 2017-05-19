@@ -14,7 +14,8 @@ FULL_BUILD=${FULL_BUILD};
 BUILD_DIR=${BUILD_DIR};
 APPLICATION=${APPLICATION};
 PROJECT_NAME=${PROJECT_NAME:-"$(env | grep -v PATCH | grep -v CI_SKIP | grep -v SUB_NETWORK | md5sum | awk '{print $1}')"};
-COMMIT_RANGE=${COMMIT_RANGE:-"origin/master...$(git rev-parse --verify HEAD)"};
+CHANGE_TARGET=${CHANGE_TARGET-master}
+COMMIT_RANGE=${COMMIT_RANGE:-"origin/$CHANGE_TARGET...$(git rev-parse --verify HEAD)"};
 
 case "${STEP}" in
   check)
@@ -22,7 +23,7 @@ case "${STEP}" in
     { cd "${APPLICATION}";
       git diff --name-only --diff-filter=ACMR "${COMMIT_RANGE}" > "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff.log";
     cd "${BUILD_DIR}"; }
-    
+
     echo "Defining strategy for Documentation Tests...";
     if  [ -n "${FULL_BUILD}" ]; then
       echo "Full build is detected. Run all";
