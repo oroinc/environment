@@ -23,7 +23,7 @@ case "${STEP}" in
     { cd "${APPLICATION}";
       git diff --name-only --diff-filter=ACMR "${COMMIT_RANGE}" > "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff.log";
     cd "${BUILD_DIR}"; }
-
+    
     echo "Defining strategy for Documentation Tests...";
     if  [ -n "${FULL_BUILD}" ]; then
       echo "Full build is detected. Run all";

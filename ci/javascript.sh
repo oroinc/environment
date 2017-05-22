@@ -26,12 +26,12 @@ case "${STEP}" in
     { cd "${APPLICATION}";
       git diff --name-only --diff-filter=ACMR "${COMMIT_RANGE}" > "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff.log";
     cd "${BUILD_DIR}"; }
-
+    
     if [[ -s "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff.log" ]]; then
       { set +e; grep -e "^package/.*\.js$" "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff.log" > "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff_js.log"; set -e; }
       [ -e "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff_js.log" ] && files=$(cat "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff_js.log")
     fi
-
+    
     if [ "${FULL_BUILD}" == "true" ]; then
       echo "Full build is detected. Run all";
       elif [[ "${files}" ]]; then
@@ -61,7 +61,7 @@ case "${STEP}" in
     --ignore-platform-reqs \
     --no-ansi
     --optimize-autoloader || true;
-
+    
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
@@ -74,7 +74,7 @@ case "${STEP}" in
         -f ${COMPOSE_FILE} \
         -p ${PROJECT_NAME} \
         run php vendor/oro/platform/build/node_modules/.bin/jscs --config=vendor/oro/platform/build/.jscsrc vendor/oro;
-
+        
         docker-compose \
         -f ${COMPOSE_FILE} \
         -p ${PROJECT_NAME} \
@@ -93,7 +93,7 @@ case "${STEP}" in
           -p ${PROJECT_NAME} \
           run php vendor/oro/platform/build/node_modules/.bin/jscs "${jsFiles//$'\n'/' '}" \
           --config=vendor/oro/platform/build/.jscsrc;
-
+          
           docker-compose \
           -f ${COMPOSE_FILE} \
           -p ${PROJECT_NAME} \
@@ -103,7 +103,7 @@ case "${STEP}" in
         done
       fi
     fi
-
+    
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
@@ -135,7 +135,7 @@ case "${STEP}" in
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     down -v;
-
+    
     rm -f "${APPLICATION}/app/config/parameters.yml" || true;
     set -e;
   ;;

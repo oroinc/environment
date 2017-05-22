@@ -13,11 +13,11 @@ trap clean_up ERR EXIT INT TERM;
 bash --version | grep 'version 4' > /dev/null;
 docker --version > /dev/null;
 docker-compose --version > /dev/null;
-parallel --version > /dev/null;
+parallel --version | grep '2017' > /dev/null;
 
 parallel --record-env;
 mv ~/.parallel/ignored_vars ~/.parallel/ignored_vars.backup
-cat ~/.parallel/ignored_vars.backup | grep -v DOCKER > ~/.parallel/ignored_vars
+grep -v DOCKER ~/.parallel/ignored_vars.backup > ~/.parallel/ignored_vars
 
 # environment folder
 pushd "$(dirname "$0")/../" > /dev/null;BUILD_DIR="$(pwd -P)";popd > /dev/null;

@@ -34,7 +34,7 @@ case "${STEP}" in
     { cd "${APPLICATION}";
       git diff --name-only --diff-filter=ACMR "${COMMIT_RANGE}" > "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff.log";
     cd "${BUILD_DIR}"; }
-
+    
     echo "Defining strategy for Tests...";
     if  [ -n "${FULL_BUILD}" ]; then
       echo "Full build is detected. Run all";
@@ -46,7 +46,7 @@ case "${STEP}" in
         echo "Source code changes were not detected";
         echo "Tests build not required!";
         export CI_SKIP=1;
-
+        
         exit 0;
       fi
     fi
@@ -56,10 +56,10 @@ case "${STEP}" in
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     up -d;
-
+    
     # todo: health check database
     sleep 15s;
-
+    
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
@@ -70,22 +70,22 @@ case "${STEP}" in
     --ignore-platform-reqs \
     --no-ansi \
     --optimize-autoloader || true;
-
+    
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     run php cp app/config/parameters.yml app/config/parameters_test.yml;
-
+    
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     run composer validate composer.json --no-check-lock --no-check-all --no-check-publish --no-ansi;
-
+    
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     run composer validate dev.json --no-check-all --no-check-publish --no-ansi;
-
+    
     if [ -n "${ORO_INSTALLED}" ]; then
       case "${DB}" in
         mysql)
@@ -132,7 +132,7 @@ case "${STEP}" in
         --no-ansi \
         --timeout=600;
       fi
-
+      
       docker-compose \
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
@@ -164,7 +164,7 @@ case "${STEP}" in
       --no-ansi \
       --timeout=600;
     fi
-
+    
     if [ -n "${ORO_SEARCH_ENGINE}" ]; then
       docker-compose \
       -f ${COMPOSE_FILE} \
@@ -179,28 +179,28 @@ case "${STEP}" in
         CONTAINERS+=(search);
       fi
       PATCH=${PROJECT_NAME};
-
+      
       docker-compose \
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
-      run php bin/phpunit --testsuite=functional --group=schema;
-
+      run php bin/phpunit --testsuite=functional --group=schema --colors;
+      
       if [ -z "${ORO_INSTALLED}" ]; then
         docker-compose \
         -f ${COMPOSE_FILE} \
         -p ${PROJECT_NAME} \
-        run php bin/phpunit --testsuite=functional --group=install;
+        run php bin/phpunit --testsuite=functional --group=install --colors;
       fi
-
+      
       for CONTAINER in "${CONTAINERS[@]}"
       do
         CONTAINER_ID=$(docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME} ps -q ${CONTAINER});
         IMAGE="$(docker inspect --format='{{.Config.Image}}' "${CONTAINER_ID}" | cut -d':' -f1)";
         docker commit "${CONTAINER_ID}" "${IMAGE}:${PATCH}";
       done
-
+      
       export PATCH;
-
+      
       if [ -n "${PARALLEL_PROCESSES}" ]; then
         for I in $(seq 1 "${PARALLEL_PROCESSES}"); do
           SUB_NETWORK=${I} docker-compose \
@@ -209,31 +209,31 @@ case "${STEP}" in
           up -d &
         done
       fi
-
+      
       docker-compose \
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
-      run php find -L vendor/oro -type d -path "**Tests/Functional" | uniq | sort | grep -v 'export' | tr -d '\r' \
+      run php find -L vendor/oro -type d -ipath "**tests/functional" | uniq | sort | grep -v 'export' | tr -d '\r' \
       > "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/testsuites.log";
-
+      
       docker-compose \
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
       stop;
-
+      
       # todo: health check database
-      sleep 30s;
+      sleep 60s;
     fi
   ;;
   script)
     if [ -z "${TEST_RUNNER_OPTIONS}" ]; then
       parallel --env _ --joblog "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/parallel.log" -j ${PARALLEL_PROCESSES} -a "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/testsuites.log" \
-      "docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} exec -T --user www-data php php bin/phpunit {} --testsuite=functional --log-junit=/var/www/html/application/app/logs/junit/functional.${PROJECT_NAME}.{#}.xml"
+      "docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} exec -T --user www-data php php bin/phpunit {} --testsuite=functional --colors --log-junit=/var/www/html/application/app/logs/junit/functional.${PROJECT_NAME}.{#}.xml"
     else
       docker-compose \
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
-      run php bin/phpunit --testsuite=functional "${TEST_RUNNER_OPTIONS}" --log-junit="/var/www/html/application/app/logs/junit/functional.${PROJECT_NAME}.xml";
+      run php bin/phpunit --testsuite=functional "${TEST_RUNNER_OPTIONS}" --colors --log-junit="/var/www/html/application/app/logs/junit/functional.${PROJECT_NAME}.xml";
     fi
   ;;
   after_script)
@@ -244,29 +244,29 @@ case "${STEP}" in
         -f ${COMPOSE_FILE} \
         -p ${PROJECT_NAME}_${I} \
         logs --no-color --timestamps > "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/docker.${I}.log";
-
+        
         docker-compose \
         -f ${COMPOSE_FILE} \
         -p ${PROJECT_NAME}_${I} \
         down -v;
       done
     fi
-
+    
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     logs --no-color --timestamps > "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/docker.log";
-
+    
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     down -v;
-
+    
     rm -f "${APPLICATION}/app/config/parameters.yml" || true;
     rm -f "${APPLICATION}/app/config/parameters_test.yml" || true;
-
+    
     docker images | grep "${PROJECT_NAME}" | awk '{print $3}' | xargs docker rmi -f;
-
+    
     unset PATCH;
     set -e;
   ;;
