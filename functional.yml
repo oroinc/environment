@@ -5,33 +5,65 @@ services:
     extends:
       file: data.yml
       service: data
+    cpu_shares: 16
+    env_file:
+      - env/${ORO_DB:-mysql}
+      - env/${ORO_SEARCH_ENGINE:-orm}
+      - env/functional
+    environment:
+      SYMFONY_ENV: test
+      SYMFONY_DEBUG: 0
+    healthcheck:
+      test: ["CMD-SHELL", "ping -c 3 database"]
+      interval: 30s
+      timeout: 5s
+      retries: 20
 
   data-cache:
     extends:
       file: data.yml
-      service: data-cache
+      service: data-cache-named
+    cpu_shares: 16
+    volumes_from:
+      - data
+    env_file:
+      - env/${ORO_DB:-mysql}
+      - env/${ORO_SEARCH_ENGINE:-orm}
+      - env/functional
+    environment:
+      SYMFONY_ENV: test
+      SYMFONY_DEBUG: 0
 
   composer:
     extends:
       file: composer/composer.yml
       service: composer
-    command: /bin/true
     volumes_from:
-      - data
       - data-cache
     env_file:
-      - env/${DB:-mysql}
+      - env/${ORO_DB:-mysql}
       - env/${ORO_SEARCH_ENGINE:-orm}
       - env/functional
+    environment:
+      SYMFONY_ENV: test
+      SYMFONY_DEBUG: 0
     logging:
       driver: ${DOCKER_LOG_DRIVER:-json-file}
+    cpu_shares: 16
 
   database:
     extends:
-      file: ${DB:-mysql}/${DB:-mysql}.yml
+      file: ${ORO_DB:-mysql}/${ORO_DB:-mysql}.yml
       service: database
     volumes_from:
-      - data
+      - data-cache
+    env_file:
+      - env/${ORO_DB:-mysql}
+      - env/${ORO_SEARCH_ENGINE:-orm}
+      - env/functional
+    environment:
+      SYMFONY_ENV: test
+      SYMFONY_DEBUG: 0
     logging:
       driver: ${DOCKER_LOG_DRIVER:-json-file}
 
@@ -40,23 +72,27 @@ services:
       file: php/php.yml
       service: php
     depends_on:
-      - composer
-      - data
-      - data-cache
-    links:
-      - database
+      database: { condition: service_healthy }
     volumes_from:
-      - data
       - data-cache
     env_file:
-      - env/${DB:-mysql}
+      - env/${ORO_DB:-mysql}
       - env/${ORO_SEARCH_ENGINE:-orm}
       - env/functional
+    environment:
+      SYMFONY_ENV: test
+      SYMFONY_DEBUG: 0
     logging:
       driver: ${DOCKER_LOG_DRIVER:-json-file}
+    cpu_shares: 3072
 
 networks:
   default:
     ipam:
       config:
-        - subnet: 172.${NETWORK:-173}.${SUB_NETWORK:-0}.0/27
+        - subnet: 172.${NETWORK:-72}.${SUB_NETWORK:-0}.0/27
+
+volumes:
+  cache:
+    external:
+      name: ${PROJECT_NAME:-functional}_cache${CACHE_VOLUME:-0}

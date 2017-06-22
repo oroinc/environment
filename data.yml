@@ -2,12 +2,19 @@ version: '2.1'
 
 services:
   data:
-    image: oroinc/data:${PATCH:-latest}
+    image: oroinc/data:latest
     volumes:
       - ".composer/cache:/usr/local/composer/cache"
       - ".composer/auth:/usr/local/composer/auth"
-      - "${APPLICATION}:/var/www/html/application"
-      - "${APPLICATION}/../../package:/var/www/package"
+      - "${ORO_APP}:/var/www/html/application"
+      - "${ORO_APP}/../../package:/var/www/package"
 
-  data-cache:
-    image: oroinc/data-cache:${PATCH:-latest}
+  data-cache-named:
+    image: oroinc/data-cache:latest
+    volumes:
+      - "cache:/var/www/html/application/app/cache/"
+
+  data-cache-anonymous:
+    image: oroinc/data-cache:latest
+    volumes:
+      - "/var/www/html/application/app/cache/"

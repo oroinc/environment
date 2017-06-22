@@ -2,6 +2,7 @@
 pushd "$(dirname "$0")" > /dev/null;DIR="$(pwd -P)";popd > /dev/null
 
 bash "${DIR}/build.php.sh"
+bash "${DIR}/build.db.sh"
 
 DIR="$DIR/.."
 

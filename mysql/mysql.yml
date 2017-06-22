@@ -15,9 +15,15 @@ services:
       - "3306"
     expose:
       - "3306"
+    privileged: true
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping && test ! -f /var/lib/mysql_data/db_lock"]
+      interval: 30s
+      timeout: 5s
+      retries: 20
 
   mysql5.5:
-    image: oroinc/mysql:${PATCH:-5.5}
+    image: oroinc/mysql:${PATCH:-5.5}-${ORO_INSTALLED:-empty}
 
   mysql5.6:
-    image: oroinc/mysql:${PATCH:-5.6}
+    image: oroinc/mysql:${PATCH:-5.6}-${ORO_INSTALLED:-empty}

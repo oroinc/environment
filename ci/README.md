@@ -10,15 +10,15 @@
 ## Flow
 
 ```
-environment/ci/run.sh {TESTSUTE} {PATH_TO_APPLICATION}
+environment/ci/run.sh {TESTSUTE} {PATH_TO_ORO_APP}
 ```
 
 ## Clean Up if something goes wrong
 ```
 docker ps -aq | xargs docker rm -fv
-docker volume ls | xargs docker volume rm
+docker volume ls -q | xargs docker volume rm -f
 docker network ls -q | xargs docker network rm
-docker images | xargs docker rmi
+docker images -q | xargs docker rmi -f
 ```
 
 ### Unit
@@ -34,7 +34,7 @@ environment/ci/run.sh unit application/platform --filter="TestFrameworkBundle\\\
 ### PHP Code Style
 
 ```
-CS=true environment/ci/run.sh unit application/platform
+ORO_CS=true environment/ci/run.sh unit application/platform
 ```
 
 ### Functional
@@ -63,7 +63,7 @@ environment/ci/run.sh javascript application/platform
 ### JavaScript Code Style
 
 ```
-CS=true environment/ci/run.sh javascript application/platform
+ORO_CS=true environment/ci/run.sh javascript application/platform
 ```
 
 ### Behat

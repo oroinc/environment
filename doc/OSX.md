@@ -6,7 +6,7 @@
 - https://github.com/caskroom/homebrew-cask
 
 ```
-brew install bash coreutils readline parallel
+brew install bash coreutils readline parallel md5sha1sum
 PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
 ```
 

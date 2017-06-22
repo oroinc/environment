@@ -8,47 +8,27 @@ set -o nounset;
 DEBUG=${DEBUG-};
 if [[ "${DEBUG}" ]]; then set -o xtrace; fi
 
-STEP=$1;
-BUILD_DIR=${BUILD_DIR};
-PHP=${PHP-7.1};
-FULL_BUILD=${FULL_BUILD:-};
-CS=${CS-true};
-APPLICATION=${APPLICATION};
-PROJECT_NAME=${PROJECT_NAME:-"$(env | grep -v PATCH | grep -v CI_SKIP | grep -v SUB_NETWORK | md5sum | awk '{print $1}')"};
-CHANGE_TARGET=${CHANGE_TARGET-master}
-COMMIT_RANGE=${COMMIT_RANGE:-"origin/$CHANGE_TARGET...$(git rev-parse --verify HEAD)"};
-LINES=500;
+STEP=${1:-before_install};
+BUILD_DIR=${BUILD_DIR:-};
+ORO_APP=${ORO_APP:-};
+ORO_CS=${ORO_CS-true};
+PROJECT_NAME=${PROJECT_NAME:-"$(ORO=true env | grep ORO | md5sum | awk '{print $1}' | cut -b 1-7)"};
 COMPOSE_FILE=${BUILD_DIR}/javascript.yml;
 
 case "${STEP}" in
-  check)
-    mkdir -p "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}" || true;
-    { cd "${APPLICATION}";
-      git diff --name-only --diff-filter=ACMR "${COMMIT_RANGE}" > "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff.log";
-    cd "${BUILD_DIR}"; }
-    
-    if [[ -s "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff.log" ]]; then
-      { set +e; grep -e "^package/.*\.js$" "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff.log" > "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff_js.log"; set -e; }
-      [ -e "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff_js.log" ] && files=$(cat "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff_js.log")
-    fi
-    
-    if [ "${FULL_BUILD}" == "true" ]; then
-      echo "Full build is detected. Run all";
-      elif [[ "${files}" ]]; then
-      echo "Package or application changes were detected";
-    else
-      echo "JS build not required!";
-      export CI_SKIP=1;
-      exit 0;
-    fi
-  ;;
   before_install)
+    docker volume create ${PROJECT_NAME:-javascript}_cache0;
   ;;
   install)
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    up -d;
+    up --no-color -d;
+    
+    docker-compose \
+    -f ${COMPOSE_FILE} \
+    -p ${PROJECT_NAME} \
+    exec -T --user www-data php rm -f app/config/parameters.yml;
   ;;
   before_script)
     docker-compose \
@@ -59,84 +39,58 @@ case "${STEP}" in
     --no-suggest \
     --no-interaction \
     --ignore-platform-reqs \
-    --no-ansi
+    --no-ansi \
     --optimize-autoloader || true;
     
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    run php npm install --prefix vendor/oro/platform/build/;
+    exec -T --user www-data php npm install --prefix vendor/oro/platform/build/;
   ;;
   script)
-    if [ -n "${CS}" ]; then
-      if [ -n "${FULL_BUILD}" ]; then
-        docker-compose \
-        -f ${COMPOSE_FILE} \
-        -p ${PROJECT_NAME} \
-        run php vendor/oro/platform/build/node_modules/.bin/jscs --config=vendor/oro/platform/build/.jscsrc vendor/oro;
-        
-        docker-compose \
-        -f ${COMPOSE_FILE} \
-        -p ${PROJECT_NAME} \
-        run php vendor/oro/platform/build/node_modules/.bin/jshint --config=vendor/oro/platform/build/.jshintrc --exclude-path=vendor/oro/platform/build/.jshintignore vendor/oro;
-      fi
-      if [[ -s "{BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff_js.log" ]]; then
-        split -l "${LINES}" "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff_js.log" "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff_js_";
-        for f in ${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/diff_js_* ; do
-          if [[ ! -s "${f}" ]]; then
-            break;
-          fi
-          jsFiles=$(cat "${f}");
-          jsFiles=${jsFiles//'package/'/'/var/www/package/'};
-          docker-compose \
-          -f ${COMPOSE_FILE} \
-          -p ${PROJECT_NAME} \
-          run php vendor/oro/platform/build/node_modules/.bin/jscs "${jsFiles//$'\n'/' '}" \
-          --config=vendor/oro/platform/build/.jscsrc;
-          
-          docker-compose \
-          -f ${COMPOSE_FILE} \
-          -p ${PROJECT_NAME} \
-          run php vendor/oro/platform/build/node_modules/.bin/jshint "${jsFiles//$'\n'/' '}" \
-          --config=vendor/oro/platform/build/.jshintrc \
-          --exclude-path=vendor/oro/platform/build/.jshintignore;
-        done
-      fi
+    if [ -n "${ORO_CS}" ]; then
+      docker-compose \
+      -f ${COMPOSE_FILE} \
+      -p ${PROJECT_NAME} \
+      exec -T --user www-data php vendor/oro/platform/build/node_modules/.bin/jscs --config=vendor/oro/platform/build/.jscsrc vendor/oro;
+      
+      docker-compose \
+      -f ${COMPOSE_FILE} \
+      -p ${PROJECT_NAME} \
+      exec -T --user www-data php vendor/oro/platform/build/node_modules/.bin/jshint --config=vendor/oro/platform/build/.jshintrc --exclude-path=vendor/oro/platform/build/.jshintignore vendor/oro;
     fi
     
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    run php app/console oro:localization:dump --no-ansi;
+    exec -T --user www-data php php app/console oro:localization:dump --no-ansi;
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    run php app/console oro:assets:install --no-ansi;
+    exec -T --user www-data php php app/console oro:assets:install --no-ansi;
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    run php app/console assetic:dump --no-ansi;
+    exec -T --user www-data php php app/console assetic:dump --no-ansi;
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    run php app/console oro:requirejs:build --no-ansi;
+    exec -T --user www-data php php app/console oro:requirejs:build --no-ansi;
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    run php vendor/oro/platform/build/node_modules/.bin/karma start vendor/oro/platform/build/karma.conf.js.dist --single-run;
+    exec -T --user www-data php vendor/oro/platform/build/node_modules/.bin/karma start vendor/oro/platform/build/karma.conf.js.dist --single-run;
+    
+    docker-compose \
+    -f ${COMPOSE_FILE} \
+    -p ${PROJECT_NAME} \
+    logs --no-color --timestamps >> "${ORO_APP}/app/logs/${PROJECT_NAME}/docker.log";
   ;;
   after_script)
     set +e;
-    docker-compose \
-    -f ${COMPOSE_FILE} \
-    -p ${PROJECT_NAME} \
-    logs --no-color --timestamps > "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/docker.log";
-    docker-compose \
-    -f ${COMPOSE_FILE} \
-    -p ${PROJECT_NAME} \
-    down -v;
-    
-    rm -f "${APPLICATION}/app/config/parameters.yml" || true;
+    docker ps --filter "name=${PROJECT_NAME}" -aq | xargs docker rm -fv;
+    docker network ls --filter "name=${PROJECT_NAME}" -q | xargs docker network rm;
+    docker volume rm -f ${PROJECT_NAME:-javascript}_cache0;
     set -e;
   ;;
 esac

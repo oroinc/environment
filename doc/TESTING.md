@@ -4,7 +4,7 @@
 ## Flow
 
 ```
-export APPLICATION=~/dev/application/commerce-crm-ee
+export ORO_APP=~/dev/application/commerce-crm-ee
 docker-compose -f environment/unit.yml up -d
 docker-compose -f environment/unit.yml run php bin/phpunit --testsuite=unit
 ```
@@ -20,7 +20,7 @@ docker images -q | xargs docker rmi -f
 ### Unit
 
 ```
-export APPLICATION=~/dev/application/commerce-crm-ee
+export ORO_APP=~/dev/application/commerce-crm-ee
 docker-compose -f environment/unit.yml up -d
 docker-compose -f environment/unit.yml run composer install --prefer-dist --no-suggest --no-interaction --ignore-platform-reqs --optimize-autoloader
 docker-compose -f environment/unit.yml run php bin/phpunit --testsuite=unit
@@ -35,7 +35,7 @@ docker-compose -f environment/unit.yml down -v
 ### PHP Code Style
 
 ```
-export APPLICATION=~/dev/application/commerce-crm-ee
+export ORO_APP=~/dev/application/commerce-crm-ee
 docker-compose -f environment/unit.yml up -d
 docker-compose -f environment/unit.yml run composer install --prefer-dist --no-suggest --no-interaction --ignore-platform-reqs --optimize-autoloader
 docker-compose -f environment/unit.yml run php bin/phpcs vendor/oro -p --encoding=utf-8 --extensions=php --standard=vendor/oro/platform/build/phpcs.xml
@@ -48,7 +48,7 @@ docker-compose -f environment/unit.yml down -v
 
 ```
 export SYMFONY_ENV=test
-export APPLICATION=~/dev/application/commerce-crm-ee
+export ORO_APP=~/dev/application/commerce-crm-ee
 # prepare parameters_test.yml
 docker-compose -f environment/functional.yml up -d
 docker-compose -f environment/functional.yml run composer install --prefer-dist --no-suggest --no-interaction --ignore-platform-reqs --optimize-autoloader
@@ -71,7 +71,7 @@ docker run -v ~/dev/documentation/commerce:/documentation oroinc/documentation:p
 ### JavaScript
 
 ```
-export APPLICATION=~/dev/application/commerce-crm-ee
+export ORO_APP=~/dev/application/commerce-crm-ee
 docker-compose -f environment/javascript.yml up -d
 docker-compose -f environment/functional.yml run composer install --prefer-dist --no-suggest --no-interaction --ignore-platform-reqs --optimize-autoloader
 docker-compose -f environment/javascript.yml run php npm install --prefix vendor/oro/platform/build/
@@ -84,7 +84,7 @@ docker-compose -f environment/javascript.yml down -v
 
 ```
 export SYMFONY_ENV=prod
-export APPLICATION=~/dev/application/commerce-crm-ee
+export ORO_APP=~/dev/application/commerce-crm-ee
 docker-compose -f environment/behat.yml up -d
 docker-compose -f environment/behat.yml run composer install --prefer-dist --no-suggest --no-interaction --ignore-platform-reqs --optimize-autoloader
 ```

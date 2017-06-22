@@ -35,9 +35,3 @@ ELASTIC_SEARCH=2.4
 ```
 ORO_INSTALLED=crm-enterprise_2.0
 ```
-
-### Parallel threads (# of CPU)
-
-```
-PARALLEL_PROCESSES=4
-```

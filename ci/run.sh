@@ -8,66 +8,61 @@ set -o nounset;
 DEBUG=${DEBUG-};
 if [[ "${DEBUG}" ]]; then set -o xtrace; fi
 
-trap clean_up ERR EXIT INT TERM;
+function requirement {
+  test 0 -lt $($1 | grep -ie $2 | wc -l) || (echo "$1 $2 required" && exit 1);
+}
 
-bash --version | grep 'version 4' > /dev/null;
-docker --version > /dev/null;
-docker-compose --version > /dev/null;
-parallel --version | grep '2017' > /dev/null;
+requirement 'docker --version' '17\.0[0-9]';
+requirement 'docker-compose --version' '1\.1[0-9]';
+requirement 'parallel --version' '2017';
 
-parallel --record-env;
-mv ~/.parallel/ignored_vars ~/.parallel/ignored_vars.backup
-grep -v DOCKER ~/.parallel/ignored_vars.backup > ~/.parallel/ignored_vars
-
-# environment folder
-pushd "$(dirname "$0")/../" > /dev/null;BUILD_DIR="$(pwd -P)";popd > /dev/null;
-export BUILD_DIR;
-
-SYMFONY_DEBUG=0;
-export SYMFONY_DEBUG;
-
-# unit, functional, behat
-TEST_SUITE=$1;
-export TEST_SUITE;
-
-if [[ ${TEST_SUITE} == "functional" ]]; then
-  export SYMFONY_ENV=test;
+if [[ ! -f ~/.parallel/ignored_vars ]]; then
+  mkdir ~/.parallel/ || true
+  parallel --record-env;
+  cp ~/.parallel/ignored_vars ~/.parallel/ignored_vars.bkp;
+  grep -vi docker ~/.parallel/ignored_vars.bkp | grep -vi oro > ~/.parallel/ignored_vars;
 fi
 
-# path to application
-pushd "$2" > /dev/null;APPLICATION="$(pwd -P)";popd > /dev/null;
-export APPLICATION;
+# environment folder
+pushd "$(dirname "$0")/../" >> /dev/null;BUILD_DIR="$(pwd -P)";popd >> /dev/null;
 
-CI_SKIP=0;
+# unit, functional, behat
+ORO_TEST_SUITE=${1:-unit};
+
+PROJECT_NAME="$(ORO=true env | grep ORO | md5sum | awk '{print $1}' | cut -b 1-7)";
 
 TEST_RUNNER_OPTIONS=${3:-};
-export TEST_RUNNER_OPTIONS;
 
-NETWORK=$(( ( RANDOM % 255 )  + 1 ));
-export NETWORK;
-SUB_NETWORK=$(( ( RANDOM % 255 )  + 1 ));
-export SUB_NETWORK;
+# path to application
+pushd "${2:-}" >> /dev/null;ORO_APP="$(pwd -P)";popd >> /dev/null;
 
-function check_codes {
-  if [ ${CI_SKIP} -ne 0 ]; then exit 0; fi;
+mkdir -p "${ORO_APP}/app/logs/${PROJECT_NAME}" || true;
+
+NETWORK=${NETWORK:-$(( ( RANDOM % 200 )  + 55 ))};
+SUB_NETWORK=${SUB_NETWORK:-$(( ( RANDOM % 200 )  + 55 ))};
+
+function run_script {
+  time \
+  BUILD_DIR=${BUILD_DIR} \
+  ORO_TEST_SUITE=${ORO_TEST_SUITE} \
+  ORO_APP=${ORO_APP} \
+  PROJECT_NAME=${PROJECT_NAME} \
+  TEST_RUNNER_OPTIONS=${TEST_RUNNER_OPTIONS} \
+  NETWORK=${NETWORK} \
+  SUB_NETWORK=${SUB_NETWORK} \
+  "${BUILD_DIR}/ci/${ORO_TEST_SUITE}.sh" "$1" | tee -a "${ORO_APP}/app/logs/${PROJECT_NAME}/${ORO_TEST_SUITE}.$2.log" ||
+  run_script 'after_script' '6.cleanup';
 }
 
 function clean_up {
-  rm -rf mv ~/.parallel/ignored_vars* || true;
-  "${BUILD_DIR}/ci/${TEST_SUITE}.sh" after_script;
+  run_script 'after_script' '6.cleanup'
 }
 
-PROJECT_NAME="$(env | grep -v PATCH | grep -v CI_SKIP | grep -v SUB_NETWORK | md5sum | awk '{print $1}')";
-export PROJECT_NAME;
+trap clean_up 1 2 3 8 14 15;
 
-rm -f "{BUILD_DIR}/ci/artifacts/${PROJECT_NAME}" || true;
-mkdir -p "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}" || true;
-
-time "${BUILD_DIR}/ci/${TEST_SUITE}.sh" after_script   ; check_codes;
-time "${BUILD_DIR}/ci/${TEST_SUITE}.sh" before_install | tee -a "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/${TEST_SUITE}.1.before_install.log" || true; check_codes;
-time "${BUILD_DIR}/ci/${TEST_SUITE}.sh" install        | tee -a "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/${TEST_SUITE}.2.install.log"        || true; check_codes;
-time "${BUILD_DIR}/ci/${TEST_SUITE}.sh" before_script  | tee -a "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/${TEST_SUITE}.3.before_script.log"  || true; check_codes;
-time "${BUILD_DIR}/ci/${TEST_SUITE}.sh" script         | tee -a "${BUILD_DIR}/ci/artifacts/${PROJECT_NAME}/${TEST_SUITE}.4.script.log"         || true; check_codes;
-time "${BUILD_DIR}/ci/${TEST_SUITE}.sh" after_script   ; check_codes;
-
-trap - ERR EXIT INT TERM;
+run_script 'after_script' '0.cleanup'
+run_script 'before_install' '1.before_install'
+run_script 'install' '2.install'
+run_script 'before_script' '3.before_script'
+run_script 'script' '4.script'
+run_script 'after_script' '5.after_script'

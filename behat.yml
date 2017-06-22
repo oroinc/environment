@@ -5,31 +5,56 @@ services:
     extends:
       file: data.yml
       service: data
+    cpu_shares: 16
+    env_file:
+      - env/${ORO_DB:-mysql}
+      - env/behat
+    environment:
+      SYMFONY_ENV: prod
+      SYMFONY_DEBUG: 0
 
   data-cache:
     extends:
       file: data.yml
-      service: data-cache
+      service: data-cache-named
+    cpu_shares: 16
+    volumes_from:
+      - data
+    env_file:
+      - env/${ORO_DB:-mysql}
+      - env/behat
+    environment:
+      SYMFONY_ENV: prod
+      SYMFONY_DEBUG: 0
 
   composer:
     extends:
       file: composer/composer.yml
       service: composer
     volumes_from:
-      - data
       - data-cache
     env_file:
-      - env/${DB:-mysql}
+      - env/${ORO_DB:-mysql}
       - env/behat
+    environment:
+      SYMFONY_ENV: prod
+      SYMFONY_DEBUG: 0
     logging:
       driver: ${DOCKER_LOG_DRIVER:-json-file}
+    cpu_shares: 16
 
   database:
     extends:
-      file: ${DB:-mysql}/${DB:-mysql}.yml
+      file: ${ORO_DB:-mysql}/${ORO_DB:-mysql}.yml
       service: database
     volumes_from:
-      - data
+      - data-cache
+    env_file:
+      - env/${ORO_DB:-mysql}
+      - env/behat
+    environment:
+      SYMFONY_ENV: prod
+      SYMFONY_DEBUG: 0
     logging:
       driver: ${DOCKER_LOG_DRIVER:-json-file}
 
@@ -38,19 +63,18 @@ services:
       file: php/php.yml
       service: db
     depends_on:
-      - composer
-      - data
-      - data-cache
-    links:
-      - database
+      database: { condition: service_healthy }
     volumes_from:
-      - data
       - data-cache
     env_file:
-      - env/${DB:-mysql}
+      - env/${ORO_DB:-mysql}
       - env/behat
+    environment:
+      SYMFONY_ENV: prod
+      SYMFONY_DEBUG: 0
     logging:
       driver: ${DOCKER_LOG_DRIVER:-json-file}
+    cpu_shares: 3072
 
   webserver:
     extends:
@@ -59,21 +83,29 @@ services:
     links:
       - php
     volumes_from:
-      - data
       - data-cache
     env_file:
-      - env/${DB:-mysql}
+      - env/${ORO_DB:-mysql}
       - env/behat
+    environment:
+      SYMFONY_ENV: prod
+      SYMFONY_DEBUG: 0
     logging:
       driver: ${DOCKER_LOG_DRIVER:-json-file}
+    cpu_shares: 32
 
   browser:
     extends:
       file: phantomjs/phantomjs.yml
       service: browser
     volumes_from:
-      - data
       - data-cache
+    env_file:
+      - env/${ORO_DB:-mysql}
+      - env/behat
+    environment:
+      SYMFONY_ENV: prod
+      SYMFONY_DEBUG: 0
     logging:
       driver: ${DOCKER_LOG_DRIVER:-json-file}
 
@@ -81,4 +113,9 @@ networks:
   default:
     ipam:
       config:
-        - subnet: 172.${NETWORK:-173}.${SUB_NETWORK:-0}.0/27
+        - subnet: 172.${NETWORK:-72}.${SUB_NETWORK:-0}.0/27
+
+volumes:
+  cache:
+    external:
+      name: ${PROJECT_NAME:-behat}_cache${CACHE_VOLUME:-0}

@@ -32,10 +32,9 @@ services:
       file: php/php.yml
       service: php
     depends_on:
-      - composer
-      - data
-    links:
-      - database
+      composer: { condition: service_started }
+      data: { condition: service_started }
+      database: { condition: service_healthy }
     volumes_from:
       - data
     env_file: 

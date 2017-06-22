@@ -6,4 +6,5 @@ services:
       file: elasticsearch/elasticsearch.yml
       service: elasticsearch
     volumes_from:
-      - data
+      - data-cache
+    cpu_shares: 256

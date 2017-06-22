@@ -15,7 +15,7 @@ First, we recommended to read the [official documentation](https://docs.docker.c
 ## Prepare
 Define environment variable with absolute path to the application root directory
 ```
-export APPLICATION=$(realpath ~/orodev)/application/commerce-crm-ee
+export ORO_APP=$(realpath ~/orodev)/application/commerce-crm-ee
 ```
 > This variable is required
 

@@ -27,7 +27,7 @@ A [Dockerized](https://www.docker.com) development environment for applications 
 
 3. Define environment variable with absolute path to the application root directory
     ```
-    export APPLICATION=$(realpath ~/orodev)/application/commerce-crm-ee
+    export ORO_APP=$(realpath ~/orodev)/application/commerce-crm-ee
     ```
 
 4. Define environment variable with application env mode (prod or dev, prod by default)
@@ -106,11 +106,11 @@ If you want to stop environment for future just press `ctrl + c`, in detached mo
       > Warning it is destroy all persistent data (database, search, mq, etc..)
   2. Delete application cache  
       ```
-      rm -rf "${APPLICATION}/app/cache/*"
+      rm -rf "${ORO_APP}/app/cache/*"
       ```
   3. Delete application config  
       ```
-      rm -rf "${APPLICATION}/app/config/parameters.yml"
+      rm -rf "${ORO_APP}/app/config/parameters.yml"
       ```
   4. Run new containers
       ```
