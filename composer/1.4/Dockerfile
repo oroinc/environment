@@ -26,6 +26,5 @@ COPY conf/docker-entrypoint-wrapper.sh /docker-entrypoint-wrapper.sh
 ENTRYPOINT ["/docker-entrypoint-wrapper.sh"]
 
 RUN mkdir -p /usr/local/composer && chown www-data:www-data /usr/local/composer
-RUN gosu www-data:www-data composer global require fxp/composer-asset-plugin
 VOLUME ["/usr/local/composer/cache", "/usr/local/composer/auth"]
 WORKDIR "/var/www/html/application"
