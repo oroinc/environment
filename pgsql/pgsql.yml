@@ -4,7 +4,7 @@ services:
   database:
     extends:
       file: pgsql.yml
-      service: pgsql${PGSQL:-9.5}
+      service: pgsql${PGSQL:-9.3}
     environment:
       POSTGRES_DB: oro_db
       POSTGRES_USER: oro_db_user
@@ -20,5 +20,17 @@ services:
       timeout: 5s
       retries: 20
 
+  pgsql9.2:
+    image: oroinc/pgsql:${PATCH:-9.2}-${ORO_INSTALLED:-empty}
+
+  pgsql9.3:
+    image: oroinc/pgsql:${PATCH:-9.3}-${ORO_INSTALLED:-empty}
+
+  pgsql9.4:
+    image: oroinc/pgsql:${PATCH:-9.4}-${ORO_INSTALLED:-empty}
+
   pgsql9.5:
     image: oroinc/pgsql:${PATCH:-9.5}-${ORO_INSTALLED:-empty}
+
+  pgsql9.6:
+    image: oroinc/pgsql:${PATCH:-9.6}-${ORO_INSTALLED:-empty}

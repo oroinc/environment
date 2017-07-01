@@ -3,7 +3,7 @@
 ## Requirements
 
 - bash 4 (with coreutils and readline)
-- parallel
+- parallel (run parallel --citation and follow instructions after installation)
 - docker
 - docker-compose
 

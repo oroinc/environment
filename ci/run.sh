@@ -50,19 +50,21 @@ function run_script {
   TEST_RUNNER_OPTIONS=${TEST_RUNNER_OPTIONS} \
   NETWORK=${NETWORK} \
   SUB_NETWORK=${SUB_NETWORK} \
-  "${BUILD_DIR}/ci/${ORO_TEST_SUITE}.sh" "$1" | tee -a "${ORO_APP}/app/logs/${PROJECT_NAME}/${ORO_TEST_SUITE}.$2.log" ||
-  run_script 'after_script' '6.cleanup';
+  "${BUILD_DIR}/ci/${ORO_TEST_SUITE}.sh" "$1" | tee -a "${ORO_APP}/app/logs/${PROJECT_NAME}/${ORO_TEST_SUITE}.$2.log";
 }
 
 function clean_up {
-  run_script 'after_script' '6.cleanup'
+  run_script 'after_script' '6.cleanup';
+  if [[ -n "${1:-}" ]]; then
+    exit 1;
+  fi
 }
 
-trap clean_up 1 2 3 8 14 15;
+trap 'clean_up 1' 1 2 3 8 14 15;
 
-run_script 'after_script' '0.cleanup'
-run_script 'before_install' '1.before_install'
-run_script 'install' '2.install'
-run_script 'before_script' '3.before_script'
-run_script 'script' '4.script'
-run_script 'after_script' '5.after_script'
+clean_up;
+run_script 'before_install' '1.before_install' || clean_up 1;
+run_script 'install' '2.install'               || clean_up 1;
+run_script 'before_script' '3.before_script'   || clean_up 1;
+run_script 'script' '4.script'                 || clean_up 1;
+clean_up;

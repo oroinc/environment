@@ -18,7 +18,7 @@ export SYMFONY_ENV=${SYMFONY_ENV-prod}
 
 ln -sf "${COMPOSER_HOME}/auth/auth.json" "${COMPOSER_HOME}/auth.json"
 
-if [[ -f /var/www/html/application/dev.json ]]; then
+if [[ -d /var/www/package ]] && [[ "$(ls -A /var/www/package)" ]]; then
   export COMPOSER=dev.json
 fi
 

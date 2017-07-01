@@ -27,3 +27,9 @@ services:
 
   mysql5.6:
     image: oroinc/mysql:${PATCH:-5.6}-${ORO_INSTALLED:-empty}
+
+  mysql5.7:
+    image: oroinc/mysql:${PATCH:-5.7}-${ORO_INSTALLED:-empty}
+
+  mysql8.0:
+    image: oroinc/mysql:${PATCH:-8.0}-${ORO_INSTALLED:-empty}

@@ -4,8 +4,8 @@ services:
   data:
     image: oroinc/data:latest
     volumes:
-      - ".composer/cache:/usr/local/composer/cache"
-      - ".composer/auth:/usr/local/composer/auth"
+      - "${BUILD_DIR:-.}/.composer/cache:/usr/local/composer/cache"
+      - "${BUILD_DIR:-.}/.composer/auth:/usr/local/composer/auth"
       - "${ORO_APP}:/var/www/html/application"
       - "${ORO_APP}/../../package:/var/www/package"
 
