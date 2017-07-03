@@ -82,6 +82,11 @@ case "${STEP}" in
       docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} exec -T --user www-data php php bin/phpcs {} -p --encoding=utf-8 --extensions=php --standard=vendor/oro/platform/build/phpcs.xml --report-full --report-junit=/var/www/html/application/app/logs/${PROJECT_NAME}/phpcs.{#}.xml;';
       
       COMPOSE_FILE=${COMPOSE_FILE} PROJECT_NAME=${PROJECT_NAME} \
+      parallel --gnu --env _ --xargs -k --lb -j ${PARALLEL_PROCESSES} --joblog "${ORO_APP}/app/logs/${PROJECT_NAME}/parallel_cs_fixer.log" -a "${ORO_APP}/app/logs/${PROJECT_NAME}/testsuites.cs.log" \
+      'SUB_NETWORK={%} \
+      docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} exec -T --user www-data php php bin/php-cs-fixer fix {} --dry-run --verbose --config=vendor/oro/platform/build/.php_cs --path-mode=intersection;';
+      
+      COMPOSE_FILE=${COMPOSE_FILE} PROJECT_NAME=${PROJECT_NAME} \
       parallel --gnu --env _ --xargs -k --lb -j ${PARALLEL_PROCESSES} --joblog "${ORO_APP}/app/logs/${PROJECT_NAME}/parallel_md1.log" -a "${ORO_APP}/app/logs/${PROJECT_NAME}/testsuites.cs.log" \
       'files="{}"; SUB_NETWORK={%} \
       docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} exec -T --user www-data php php bin/phpmd ${files// /,} text vendor/oro/platform/build/phpmd.xml --suffixes php --reportfile-xml /var/www/html/application/app/logs/${PROJECT_NAME}/phpmd.{#}.xml;';
