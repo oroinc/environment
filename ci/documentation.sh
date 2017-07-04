@@ -21,7 +21,7 @@ case "${STEP}" in
   before_script)
   ;;
   script)
-    docker run -v "${ORO_APP}":/documentation "${IMAGE}";
+    docker run --env DOCUMENTATION_BUILDDIR=${DOCUMENTATION_BUILDDIR:-_build} -v "${ORO_APP}":/documentation "${IMAGE}";
   ;;
   after_script)
   ;;
