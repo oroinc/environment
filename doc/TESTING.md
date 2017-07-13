@@ -137,7 +137,7 @@ selenium2:
 ```
 
 ```
-docker-compose -f environment/behat.yml run php bin/behat -s OroInstallerBundle --skip-isolators -v
+docker-compose -f environment/behat.yml run php bin/behat -s OroInstallerBundle -v
 docker-compose -f environment/behat.yml run php bin/behat --available-suites
 
 # run full suite

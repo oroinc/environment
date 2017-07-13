@@ -74,8 +74,8 @@ case "${STEP}" in
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php php bin/behat -s OroInstallerBundle --skip-isolators -f pretty -o std \
-    -f junit -o /var/www/html/application/app/logs/${PROJECT_NAME}/ --strict --colors;
+    exec -T --user www-data php php bin/behat -vvv -s OroInstallerBundle \
+    -f pretty -o std -f junit -o /var/www/html/application/app/logs/${PROJECT_NAME}/ --strict --colors;
   ;;
   before_script)
     CONTAINER_ID=$(docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME} ps -q database);
@@ -111,7 +111,7 @@ case "${STEP}" in
       
       COMPOSE_FILE=${COMPOSE_FILE} PROJECT_NAME=${PROJECT_NAME} PATCH=${PROJECT_NAME} \
       parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/app/logs/${PROJECT_NAME}/parallel_behat.log" -j ${PARALLEL_PROCESSES} -a "${ORO_APP}/app/logs/${PROJECT_NAME}/testsuites.log" \
-      'SUB_NETWORK={%} CACHE_VOLUME={%} docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} exec -T --user www-data php bin/behat -s {} -f progress -o std -f junit -o /var/www/html/application/app/logs/${PROJECT_NAME}/ -f pretty -o /var/www/html/application/app/logs/${PROJECT_NAME}/{#}.log --strict --colors;';
+      'SUB_NETWORK={%} CACHE_VOLUME={%} docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} exec -T --user www-data php bin/behat -vvv -s {} -f pretty -o std -f junit -o /var/www/html/application/app/logs/${PROJECT_NAME}/ --strict --colors;';
       
       seq ${PARALLEL_PROCESSES} | COMPOSE_FILE=${COMPOSE_FILE} PROJECT_NAME=${PROJECT_NAME} PATCH=${PROJECT_NAME} \
       parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/app/logs/${PROJECT_NAME}/parallel_log.log" -j ${PARALLEL_PROCESSES} \
@@ -120,7 +120,7 @@ case "${STEP}" in
       docker-compose \
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
-      exec -T --user www-data php php bin/behat "${TEST_RUNNER_OPTIONS}" -f progress -o std -f junit -o /var/www/html/application/app/logs/${PROJECT_NAME}/ --strict --no-colors;
+      exec -T --user www-data php php bin/behat -vvv "${TEST_RUNNER_OPTIONS}" -f pretty -o std -f junit -o /var/www/html/application/app/logs/${PROJECT_NAME}/ --strict --no-colors;
     fi
   ;;
   after_script)
