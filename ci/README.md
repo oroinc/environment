@@ -71,6 +71,5 @@ ORO_CS=true environment/ci/run.sh javascript application/platform
 ```
 environment/ci/run.sh behat application/platform
 environment/ci/run.sh behat application/platform "-s OroHelpBundle"
-environment/ci/run.sh behat application/platform "-s OroHelpBundle --skip-isolators"
-environment/ci/run.sh behat application/platform "-s OroHelpBundle --skip-isolators -vvv"
+environment/ci/run.sh behat application/platform "-s OroHelpBundle -vvv"
 ```

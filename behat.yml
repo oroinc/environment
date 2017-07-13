@@ -7,7 +7,7 @@ services:
       service: data
     cpu_shares: 16
     env_file:
-      - env/${ORO_DB:-mysql}
+      - env/${ORO_DB:-pgsql}
       - env/behat
     environment:
       SYMFONY_ENV: prod
@@ -21,7 +21,7 @@ services:
     volumes_from:
       - data
     env_file:
-      - env/${ORO_DB:-mysql}
+      - env/${ORO_DB:-pgsql}
       - env/behat
     environment:
       SYMFONY_ENV: prod
@@ -34,7 +34,7 @@ services:
     volumes_from:
       - data-cache
     env_file:
-      - env/${ORO_DB:-mysql}
+      - env/${ORO_DB:-pgsql}
       - env/behat
     environment:
       SYMFONY_ENV: prod
@@ -45,12 +45,12 @@ services:
 
   database:
     extends:
-      file: ${ORO_DB:-mysql}/${ORO_DB:-mysql}.yml
+      file: ${ORO_DB:-pgsql}/${ORO_DB:-pgsql}.yml
       service: database
     volumes_from:
       - data-cache
     env_file:
-      - env/${ORO_DB:-mysql}
+      - env/${ORO_DB:-pgsql}
       - env/behat
     environment:
       SYMFONY_ENV: prod
@@ -67,7 +67,7 @@ services:
     volumes_from:
       - data-cache
     env_file:
-      - env/${ORO_DB:-mysql}
+      - env/${ORO_DB:-pgsql}
       - env/behat
     environment:
       SYMFONY_ENV: prod
@@ -85,7 +85,7 @@ services:
     volumes_from:
       - data-cache
     env_file:
-      - env/${ORO_DB:-mysql}
+      - env/${ORO_DB:-pgsql}
       - env/behat
     environment:
       SYMFONY_ENV: prod
@@ -101,7 +101,7 @@ services:
     volumes_from:
       - data-cache
     env_file:
-      - env/${ORO_DB:-mysql}
+      - env/${ORO_DB:-pgsql}
       - env/behat
     environment:
       SYMFONY_ENV: prod
