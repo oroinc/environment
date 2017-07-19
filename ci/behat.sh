@@ -45,8 +45,8 @@ case "${STEP}" in
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php bash -c 'echo -e "\nimports:" >> app/config/parameters.yml; find -L vendor/oro -type f -iname "parameters.yml" -ipath "**Tests/Behat**" -exec echo "  - { resource: ./../../{} }" >> app/config/parameters.yml \;';
-    
+    exec -T --user www-data php bash -c 'echo -e "\noro_form: {settings: { wysiwyg_enabled: { value: false } }}\nimports:" >> app/config/parameters.yml; find -L vendor/oro -type f -iname "parameters.yml" -ipath "**Tests/Behat**" -exec echo "  - { resource: ./../../{} }" >> app/config/parameters.yml \;';
+
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
