@@ -81,8 +81,17 @@ case "${ORO_TEST_SUITE}" in
     fi
   ;;
   duplicate-queries)
-    echo "Defining strategy for behat_wiring Tests...";
+    echo "Defining strategy for duplicate-queries Tests...";
     { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" -e "^application/" -e "^package/" -r --exclude=\*.{feature,msi,ods,psd,bat,gif,gitignore,gitkeep,html,jpg,jpeg,md,mp4,png,py,rst,txt,gliffy,css,js,less,scss,cur,eot,ico,svg,ttf,woff,woff2,xlsx} "${ORO_APP}/app/logs/${PROJECT_NAME}/diff.log"); set -e; }
+    if [[ "${files}" ]]; then
+      echo "Changes were detected";
+    else
+      echo "Build not required!";
+    fi
+  ;;
+  patch_update)
+    echo "Defining strategy for patch_update Tests...";
+    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" "${ORO_APP}/app/logs/${PROJECT_NAME}/diff.log"); set -e; }
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
