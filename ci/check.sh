@@ -55,7 +55,7 @@ case "${ORO_TEST_SUITE}" in
   ;;
   javascript)
     echo "Defining strategy for JS Tests...";
-    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" -e "^.*\.js$" "${ORO_APP}/app/logs/${PROJECT_NAME}/diff.log"); set -e; }
+    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" -e "^.*\.js$" -e "^.*\.php$" "${ORO_APP}/app/logs/${PROJECT_NAME}/diff.log"); set -e; }
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
