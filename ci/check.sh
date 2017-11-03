@@ -32,7 +32,7 @@ case "${ORO_TEST_SUITE}" in
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
-      echo "Build not required!";
+      echo "Changes weren't detected. Build is not required";
     fi
   ;;
   unit)
@@ -41,7 +41,7 @@ case "${ORO_TEST_SUITE}" in
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
-      echo "Build not required!";
+      echo "Changes weren't detected. Build is not required";
     fi
   ;;
   documentation)
@@ -50,7 +50,7 @@ case "${ORO_TEST_SUITE}" in
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
-      echo "Build not required!";
+      echo "Changes weren't detected. Build is not required";
     fi
   ;;
   javascript)
@@ -59,7 +59,7 @@ case "${ORO_TEST_SUITE}" in
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
-      echo "Build not required!";
+      echo "Changes weren't detected. Build is not required";
     fi
   ;;
   behat)
@@ -77,7 +77,7 @@ case "${ORO_TEST_SUITE}" in
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
-      echo "Build not required!";
+      echo "Changes weren't detected. Build is not required";
     fi
   ;;
   duplicate-queries)
@@ -86,16 +86,16 @@ case "${ORO_TEST_SUITE}" in
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
-      echo "Build not required!";
+      echo "Changes weren't detected. Build is not required";
     fi
   ;;
   patch_update)
     echo "Defining strategy for patch_update Tests...";
-    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" "${ORO_APP}/app/logs/${PROJECT_NAME}/diff.log"); set -e; }
+    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" -e "^application/" -e "^package/" -r --exclude=\*.{feature,msi,ods,psd,bat,gif,gitignore,gitkeep,html,jpg,jpeg,md,mp4,png,py,rst,txt,gliffy,css,js,less,scss,cur,eot,ico,svg,ttf,woff,woff2,xlsx} "${ORO_APP}/app/logs/${PROJECT_NAME}/diff.log"); set -e; }
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
-      echo "Build not required!";
+      echo "Changes weren't detected. Build is not required";
     fi
   ;;
 esac
