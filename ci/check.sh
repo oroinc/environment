@@ -91,11 +91,6 @@ case "${ORO_TEST_SUITE}" in
   ;;
   patch_update)
     echo "Defining strategy for patch_update Tests...";
-    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" "${ORO_APP}/app/logs/${PROJECT_NAME}/diff.log"); set -e; }
-    if [[ "${files}" ]]; then
-      echo "Changes were detected";
-    else
-      echo "Build not required!";
-    fi
+    echo "Changes were detected";
   ;;
 esac
