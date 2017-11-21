@@ -56,7 +56,16 @@ case "${ORO_TEST_SUITE}" in
   ;;
   javascript)
     echo "Defining strategy for JS Tests...";
-    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" -e "^.*\.js$" -e "^.*\.php$" "$DIR_DIFF/diff.log"); set -e; }
+    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" -e "^.*\.js$" "$DIR_DIFF/diff.log"); set -e; }
+    if [[ "${files}" ]]; then
+      echo "Changes were detected";
+    else
+      echo "Changes weren't detected. Build is not required";
+    fi
+  ;;
+  style)
+    echo "Defining strategy for CS Tests...";
+    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" -e "^.*\.php$" "$DIR_DIFF/diff.log"); set -e; }
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
