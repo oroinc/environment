@@ -14,21 +14,22 @@ ORO_TEST_SUITE=${1:-unit};
 ORO_APP=${2:-application/platform};
 pushd "$(dirname "$0")/../" >> /dev/null;BUILD_DIR="$(pwd -P)";popd >> /dev/null;
 
-PROJECT_NAME="$(ORO=true env | grep ORO | md5sum | awk '{print $1}' | cut -b 1-7)";
+PROJECT_NAME="${PROJECT_NAME-$(ORO=true env | grep ORO | md5sum | awk '{print $1}' | cut -b 1-7)}";
+DIR_DIFF="${DIR_DIFF-${ORO_APP}/app/logs/${PROJECT_NAME}}"
 
 # path to application
 pushd "${2:-}" >> /dev/null;ORO_APP="$(pwd -P)";popd >> /dev/null;
 
-mkdir -p "${ORO_APP}/app/logs/${PROJECT_NAME}" || true;
+mkdir -p "$DIR_DIFF" || true;
 
 { cd "${ORO_APP}";
-  git diff --name-only --diff-filter=ACMR "${COMMIT_RANGE}" >> "${ORO_APP}/app/logs/${PROJECT_NAME}/diff.log";
+  git diff --name-only --diff-filter=ACMR "${COMMIT_RANGE}" >> "$DIR_DIFF/diff.log";
 cd "${BUILD_DIR}"; }
 
 case "${ORO_TEST_SUITE}" in
   functional)
     echo "Defining strategy for Functional Tests...";
-    { set +e; files=$(grep -e "application/" -e "package/" -e "environment/" -e "^.jenkins" -e "^Jenkinsfile" -r --exclude=\*.{feature,msi,ods,psd,bat,gif,gitignore,gitkeep,html,jpg,jpeg,md,mp4,png,py,rst,txt,gliffy,css,js,less,scss,cur,eot,ico,svg,ttf,woff,woff2,xlsx} "${ORO_APP}/app/logs/${PROJECT_NAME}/diff.log"); set -e; }
+    { set +e; files=$(grep -e "application/" -e "package/" -e "environment/" -e "^.jenkins" -e "^Jenkinsfile" -r --exclude=\*.{feature,msi,ods,psd,bat,gif,gitignore,gitkeep,html,jpg,jpeg,md,mp4,png,py,rst,txt,gliffy,css,js,less,scss,cur,eot,ico,svg,ttf,woff,woff2,xlsx} "$DIR_DIFF/diff.log"); set -e; }
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
@@ -37,7 +38,7 @@ case "${ORO_TEST_SUITE}" in
   ;;
   unit)
     echo "Defining strategy for Unit Tests...";
-    { set +e; files=$(grep -e "application/" -e "package/" -e "environment/" -e "^Jenkinsfile" -e "^.jenkins" -r --exclude=\*.{feature,msi,ods,psd,bat,gif,gitignore,gitkeep,html,jpg,jpeg,md,mp4,png,py,rst,txt,gliffy,css,js,less,scss,cur,eot,ico,svg,ttf,woff,woff2,xlsx} "${ORO_APP}/app/logs/${PROJECT_NAME}/diff.log"); set -e; }
+    { set +e; files=$(grep -e "application/" -e "package/" -e "environment/" -e "^Jenkinsfile" -e "^.jenkins" -r --exclude=\*.{feature,msi,ods,psd,bat,gif,gitignore,gitkeep,html,jpg,jpeg,md,mp4,png,py,rst,txt,gliffy,css,js,less,scss,cur,eot,ico,svg,ttf,woff,woff2,xlsx} "$DIR_DIFF/diff.log"); set -e; }
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
@@ -46,7 +47,7 @@ case "${ORO_TEST_SUITE}" in
   ;;
   documentation)
     echo "Defining strategy for Documentation Tests...";
-    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" -e "^documentation" "${ORO_APP}/app/logs/${PROJECT_NAME}/diff.log"); set -e; }
+    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" -e "^documentation" "$DIR_DIFF/diff.log"); set -e; }
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
@@ -55,7 +56,16 @@ case "${ORO_TEST_SUITE}" in
   ;;
   javascript)
     echo "Defining strategy for JS Tests...";
-    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" -e "^.*\.js$" -e "^.*\.php$" "${ORO_APP}/app/logs/${PROJECT_NAME}/diff.log"); set -e; }
+    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" -e "^.*\.js$" "$DIR_DIFF/diff.log"); set -e; }
+    if [[ "${files}" ]]; then
+      echo "Changes were detected";
+    else
+      echo "Changes weren't detected. Build is not required";
+    fi
+  ;;
+  style)
+    echo "Defining strategy for CS Tests...";
+    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" -e "^.*\.php$" "$DIR_DIFF/diff.log"); set -e; }
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
@@ -64,7 +74,7 @@ case "${ORO_TEST_SUITE}" in
   ;;
   behat)
     echo "Defining strategy for Behat Tests...";
-    { set +e; files=$(grep -e "application/" -e "package/" -e "environment/" -e "^Jenkinsfile" -e "^.jenkins" -r --exclude=\*.{msi,ods,psd,bat,gif,gitignore,gitkeep,html,jpg,jpeg,md,mp4,png,py,rst,txt,gliffy} "${ORO_APP}/app/logs/${PROJECT_NAME}/diff.log"); set -e; }
+    { set +e; files=$(grep -e "application/" -e "package/" -e "environment/" -e "^Jenkinsfile" -e "^.jenkins" -r --exclude=\*.{msi,ods,psd,bat,gif,gitignore,gitkeep,html,jpg,jpeg,md,mp4,png,py,rst,txt,gliffy} "$DIR_DIFF/diff.log"); set -e; }
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
@@ -73,7 +83,7 @@ case "${ORO_TEST_SUITE}" in
   ;;
   behat_wiring)
     echo "Defining strategy for behat_wiring Tests...";
-    { set +e; files=$(grep -e "application/" -e "package/" -e "environment/" -e "^Jenkinsfile" -e "^.jenkins" -r --exclude=\*.{msi,ods,psd,bat,gif,gitignore,gitkeep,html,jpg,jpeg,md,mp4,png,py,rst,txt,gliffy} "${ORO_APP}/app/logs/${PROJECT_NAME}/diff.log"); set -e; }
+    { set +e; files=$(grep -e "application/" -e "package/" -e "environment/" -e "^Jenkinsfile" -e "^.jenkins" -r --exclude=\*.{msi,ods,psd,bat,gif,gitignore,gitkeep,html,jpg,jpeg,md,mp4,png,py,rst,txt,gliffy} "$DIR_DIFF/diff.log"); set -e; }
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
@@ -82,7 +92,7 @@ case "${ORO_TEST_SUITE}" in
   ;;
   duplicate-queries)
     echo "Defining strategy for duplicate-queries Tests...";
-    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" -e "^application/" -e "^package/" -r --exclude=\*.{feature,msi,ods,psd,bat,gif,gitignore,gitkeep,html,jpg,jpeg,md,mp4,png,py,rst,txt,gliffy,css,js,less,scss,cur,eot,ico,svg,ttf,woff,woff2,xlsx} "${ORO_APP}/app/logs/${PROJECT_NAME}/diff.log"); set -e; }
+    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" -e "^application/" -e "^package/" -r --exclude=\*.{feature,msi,ods,psd,bat,gif,gitignore,gitkeep,html,jpg,jpeg,md,mp4,png,py,rst,txt,gliffy,css,js,less,scss,cur,eot,ico,svg,ttf,woff,woff2,xlsx} "$DIR_DIFF/diff.log"); set -e; }
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
@@ -91,7 +101,7 @@ case "${ORO_TEST_SUITE}" in
   ;;
   patch_update)
     echo "Defining strategy for patch_update Tests...";
-    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" -e "^application/" -e "^package/" -r --exclude=\*.{feature,msi,ods,psd,bat,gif,gitignore,gitkeep,html,jpg,jpeg,md,mp4,png,py,rst,txt,gliffy,css,js,less,scss,cur,eot,ico,svg,ttf,woff,woff2,xlsx} "${ORO_APP}/app/logs/${PROJECT_NAME}/diff.log"); set -e; }
+    { set +e; files=$(grep -e "^Jenkinsfile" -e "^.jenkins" -e "^application/" -e "^package/" -r --exclude=\*.{feature,msi,ods,psd,bat,gif,gitignore,gitkeep,html,jpg,jpeg,md,mp4,png,py,rst,txt,gliffy,css,js,less,scss,cur,eot,ico,svg,ttf,woff,woff2,xlsx} "$DIR_DIFF/diff.log"); set -e; }
     if [[ "${files}" ]]; then
       echo "Changes were detected";
     else
