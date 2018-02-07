@@ -14,6 +14,7 @@ ORO_TEST_SUITE=${1:-unit}
 ORO_APP=${2:-application/platform}
 PROJECT_NAME="${PROJECT_NAME-$(ORO=true env | grep ORO | md5sum | awk '{print $1}' | cut -b 1-7)}"
 DIR_DIFF="${DIR_DIFF-${ORO_APP}/app/logs/${PROJECT_NAME}}"
+FILE_DIFF="${FILE_DIFF-diff.log}"
 
 # path to application
 pushd "${2:-}" >>/dev/null
@@ -23,14 +24,14 @@ popd >>/dev/null
 mkdir -p "$DIR_DIFF" || :
 
 pushd "${ORO_APP}"
-git diff --name-only --diff-filter=ACMR "${COMMIT_RANGE}" >>"$DIR_DIFF/diff.log"
+git diff --name-only --diff-filter=ACMR "${COMMIT_RANGE}" >>"$DIR_DIFF/$FILE_DIFF"
 popd
 
 case "${ORO_TEST_SUITE}" in
 functional)
   echo "Defining strategy for Functional Tests..."
   set +e
-  files=$(grep -e "^application/" -e "^package/" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/diff.log" | grep -v -E "\.(feature|msi|ods|psd|bat|gif|gitignore|gitkeep|html|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy|css|js|less|scss|cur|eot|ico|svg|ttf|woff|woff2|xlsx)$")
+  files=$(grep -e "^application/" -e "^package/" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF" | grep -v -E "\.(feature|msi|ods|psd|bat|gif|gitignore|gitkeep|html|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy|css|js|less|scss|cur|eot|ico|svg|ttf|woff|woff2|xlsx)$")
   set -e
   if [[ "${files}" ]]; then
     echo "Changes were detected"
@@ -41,7 +42,7 @@ functional)
 unit)
   echo "Defining strategy for Unit Tests..."
   set +e
-  files=$(grep -e "^application/" -e "^package/" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/diff.log" | grep -v -E "\.(feature|msi|ods|psd|batods|psd|bat|gif|gitignore|gitkeep|html|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy|css|js|less|scss|cur|eot|ico|svg|ttf|woff|woff2|xlsxgif|gitignore|gitkeep|html|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy|css|js|less|scss|cur|eot|ico|svg|ttf|woff|woff2|xlsx)$")
+  files=$(grep -e "^application/" -e "^package/" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF" | grep -v -E "\.(feature|msi|ods|psd|batods|psd|bat|gif|gitignore|gitkeep|html|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy|css|js|less|scss|cur|eot|ico|svg|ttf|woff|woff2|xlsxgif|gitignore|gitkeep|html|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy|css|js|less|scss|cur|eot|ico|svg|ttf|woff|woff2|xlsx)$")
   set -e
   if [[ "${files}" ]]; then
     echo "Changes were detected"
@@ -52,7 +53,7 @@ unit)
 documentation)
   echo "Defining strategy for Documentation Tests..."
   set +e
-  files=$(grep -e "^documentation" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/diff.log")
+  files=$(grep -e "^documentation" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF")
   set -e
   if [[ "${files}" ]]; then
     echo "Changes were detected"
@@ -63,7 +64,7 @@ documentation)
 javascript)
   echo "Defining strategy for JS Tests..."
   set +e
-  files=$(grep -e "\.js$" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/diff.log")
+  files=$(grep -e "\.js$" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF")
   set -e
   if [[ "${files}" ]]; then
     echo "Changes were detected"
@@ -74,7 +75,7 @@ javascript)
 style)
   echo "Defining strategy for CS Tests..."
   set +e
-  files=$(grep -e "\.php$" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/diff.log")
+  files=$(grep -e "\.php$" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF")
   set -e
   if [[ "${files}" ]]; then
     echo "Changes were detected"
@@ -85,7 +86,7 @@ style)
 behat)
   echo "Defining strategy for Behat Tests..."
   set +e
-  files=$(grep -e "^application/" -e "^package/" -e "^environment/" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/diff.log" | grep -v -E "\.(msi|ods|psd|bat|gif|gitignore|gitkeep|html|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy)$")
+  files=$(grep -e "^application/" -e "^package/" -e "^environment/" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF" | grep -v -E "\.(msi|ods|psd|bat|gif|gitignore|gitkeep|html|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy)$")
   set -e
   if [[ "${files}" ]]; then
     echo "Changes were detected"
@@ -96,7 +97,7 @@ behat)
 behat_wiring)
   echo "Defining strategy for behat_wiring Tests..."
   set +e
-  files=$(grep -e "^application/" -e "^package/" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/diff.log" | grep -v -E "\.(msi|ods|psd|bat|gif|gitignore|gitkeep|html|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy)$")
+  files=$(grep -e "^application/" -e "^package/" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF" | grep -v -E "\.(msi|ods|psd|bat|gif|gitignore|gitkeep|html|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy)$")
   set -e
   if [[ "${files}" ]]; then
     echo "Changes were detected"
@@ -107,7 +108,7 @@ behat_wiring)
 duplicate-queries | patch_update)
   echo "Defining strategy for duplicate-queries Tests..."
   set +e
-  files=$(grep -e "^application/" -e "^package/" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/diff.log" | grep -v -E "\.(feature|msi|ods|psd|bat|gif|gitignore|gitkeep|html|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy|css|js|less|scss|cur|eot|ico|svg|ttf|woff|woff2|xlsx)$")
+  files=$(grep -e "^application/" -e "^package/" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF" | grep -v -E "\.(feature|msi|ods|psd|bat|gif|gitignore|gitkeep|html|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy|css|js|less|scss|cur|eot|ico|svg|ttf|woff|woff2|xlsx)$")
   set -e
   if [[ "${files}" ]]; then
     echo "Changes were detected"
