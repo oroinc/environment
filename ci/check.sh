@@ -71,7 +71,7 @@ javascript)
     echo "Changes weren't detected. Build is not required"
   fi
   ;;
-style)
+php_code_style)
   echo "Defining strategy for CS Tests..."
   set +e
   files=$(grep -e "\.php$" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/diff.log")
