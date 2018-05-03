@@ -52,7 +52,7 @@ export ORO_APP=~/dev/application/commerce-crm-ee
 # prepare parameters_test.yml
 docker-compose -f environment/functional.yml up -d
 docker-compose -f environment/functional.yml run composer install --prefer-dist --no-suggest --no-interaction --ignore-platform-reqs --optimize-autoloader
-docker-compose -f environment/functional.yml run php app/console oro:install --no-interaction --skip-assets --skip-translations --user-name=admin --user-email=admin@example.com --user-firstname=John --user-lastname=Doe --user-password=admin --sample-data=n --organization-name=Oro --application-url='http://localhost/' --timeout=600
+docker-compose -f environment/functional.yml run php bin/console oro:install --no-interaction --skip-assets --skip-translations --user-name=admin --user-email=admin@example.com --user-firstname=John --user-lastname=Doe --user-password=admin --sample-data=n --organization-name=Oro --application-url='http://localhost/' --timeout=600
 docker-compose -f environment/functional.yml run php bin/phpunit --testsuite=functional
 docker-compose -f environment/functional.yml run php bin/phpunit vendor/oro/platform/src/Oro/Bundle/TestFrameworkBundle/Tests/Functional
 docker-compose -f environment/functional.yml run php bin/phpunit vendor/oro/platform/src/Oro/Bundle/TestFrameworkBundle/Tests/Functional/SchemaTest.php

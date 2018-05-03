@@ -39,7 +39,7 @@ fi
 while :
 do
   info "Running '$CMD' command"
-  (php app/console ${CMD} && {
+  (php bin/console ${CMD} && {
       info "Consumer finished with exit code: $?"
     }) || {
     error "Consumer failed with exit code: $?"

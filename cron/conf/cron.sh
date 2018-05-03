@@ -32,8 +32,8 @@ fi
 while :
 do
   START_TIME=$(date +%s)
-  info "Running 'php app/console oro:cron' command"
-  (php app/console oro:cron && {
+  info "Running 'php bin/console oro:cron' command"
+  (php bin/console oro:cron && {
       info "The oro:cron command finished with exit code: $?"
     }) || {
     error "The oro:cron command failed with exit code: $?"

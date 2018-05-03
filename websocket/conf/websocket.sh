@@ -32,8 +32,8 @@ fi
 
 while :
 do
-  info "Running 'php app/console clank:server' command"
-  (php app/console clank:server && {
+  info "Running 'php bin/console clank:server' command"
+  (php bin/console clank:server && {
       info "Clank server finished with exit code: $?"
     }) || {
     error "Clank server failed with exit code: $?"

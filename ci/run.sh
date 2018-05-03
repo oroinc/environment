@@ -36,7 +36,7 @@ TEST_RUNNER_OPTIONS=${3:-};
 # path to application
 pushd "${2:-}" >> /dev/null;ORO_APP="$(pwd -P)";popd >> /dev/null;
 
-mkdir -p "${ORO_APP}/app/logs/${PROJECT_NAME}" || true;
+mkdir -p "${ORO_APP}/var/logs/${PROJECT_NAME}" || true;
 
 NETWORK=${NETWORK:-$(( ( RANDOM % 200 )  + 55 ))};
 SUB_NETWORK=${SUB_NETWORK:-$(( ( RANDOM % 200 )  + 55 ))};
@@ -50,7 +50,7 @@ function run_script {
   TEST_RUNNER_OPTIONS=${TEST_RUNNER_OPTIONS} \
   NETWORK=${NETWORK} \
   SUB_NETWORK=${SUB_NETWORK} \
-  "${BUILD_DIR}/ci/${ORO_TEST_SUITE}.sh" "$1" | tee -a "${ORO_APP}/app/logs/${PROJECT_NAME}/${ORO_TEST_SUITE}.$2.log";
+  "${BUILD_DIR}/ci/${ORO_TEST_SUITE}.sh" "$1" | tee -a "${ORO_APP}/var/logs/${PROJECT_NAME}/${ORO_TEST_SUITE}.$2.log";
 }
 
 function clean_up {

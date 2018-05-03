@@ -63,19 +63,19 @@ case "${STEP}" in
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php php app/console oro:localization:dump --no-ansi;
+    exec -T --user www-data php php bin/console oro:localization:dump --no-ansi;
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php php app/console oro:assets:install --no-ansi;
+    exec -T --user www-data php php bin/console oro:assets:install --no-ansi;
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php php app/console assetic:dump --no-ansi;
+    exec -T --user www-data php php bin/console assetic:dump --no-ansi;
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php php app/console oro:requirejs:build --no-ansi;
+    exec -T --user www-data php php bin/console oro:requirejs:build --no-ansi;
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
@@ -84,7 +84,7 @@ case "${STEP}" in
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    logs --no-color --timestamps >> "${ORO_APP}/app/logs/${PROJECT_NAME}/docker.log";
+    logs --no-color --timestamps >> "${ORO_APP}/var/logs/${PROJECT_NAME}/docker.log";
   ;;
   after_script)
     set +e;
