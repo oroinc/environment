@@ -10,6 +10,7 @@ services:
       - BLACKFIRE_SERVER_TOKEN
       - SYMFONY_ENV
       - SYMFONY_DEBUG
+      - XDEBUG_ENABLED
 
   consumer5.6:
     image: oroinc/consumer:5.6-xenial
