@@ -39,11 +39,11 @@ fi
 
 [[ $(stat -c '%u' "${COMPOSER_HOME}") != "${OWNER_UID}" ]] && chown -R "${OWNER_UID}:${OWNER_GID}" "${COMPOSER_HOME}"
 
-[[ ! -f /var/www/html/application/app/config/parameters.yml ]] \
-&& [[ -d /var/www/html/application/app/cache ]] \
-&& find /var/www/html/application/app/cache/* -maxdepth 1 -type d | awk  -F'/' '{print $NF}' | grep 'dev\|prod\|test' > /dev/null 2>&1 && {
+[[ ! -f /var/www/html/application/config/parameters.yml ]] \
+&& [[ -d /var/www/html/application/var/cache ]] \
+&& find /var/www/html/application/var/cache/* -maxdepth 1 -type d | awk  -F'/' '{print $NF}' | grep 'dev\|prod\|test' > /dev/null 2>&1 && {
   info "Possible the application cache is outdated, deleting..."
-  (rm -rf /var/www/html/application/app/cache/* && {
+  (rm -rf /var/www/html/application/var/cache/* && {
       info "Application cache for all environments deleted successfully"
     }) || {
     error "Can't delete application cache"

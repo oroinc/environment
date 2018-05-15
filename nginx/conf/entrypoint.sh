@@ -13,7 +13,7 @@ error () {
 }
 
 if [ "${SYMFONY_ENV}" = "dev" ]; then
-  sed -i -e "s/app\.php/app_dev\.php/g" /etc/nginx/conf.d/default.conf
+  sed -i -e "s/index\.php/index_dev\.php/g" /etc/nginx/conf.d/default.conf
 fi
 
 if ping -c1 -W1 websocket >/dev/null; then

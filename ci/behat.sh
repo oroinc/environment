@@ -29,7 +29,7 @@ case "${STEP}" in
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     exec -T --user www-data php \
-    rm -f app/config/parameters.yml behat.yml;
+    rm -f config/parameters.yml behat.yml;
     
     docker-compose \
     -f ${COMPOSE_FILE} \
@@ -45,7 +45,7 @@ case "${STEP}" in
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php bash -c 'echo -e "\noro_form: {settings: { wysiwyg_enabled: { value: false } }}\nimports:" >> app/config/parameters.yml; find -L vendor/oro -type f -iname "parameters.yml" -ipath "**Tests/Behat**" -exec echo "  - { resource: ./../../{} }" >> app/config/parameters.yml \;';
+    exec -T --user www-data php bash -c 'echo -e "\noro_form: {settings: { wysiwyg_enabled: { value: false } }}\nimports:" >> config/parameters.yml; find -L vendor/oro -type f -iname "parameters.yml" -ipath "**Tests/Behat**" -exec echo "  - { resource: ./../../{} }" >> config/parameters.yml \;';
 
     docker-compose \
     -f ${COMPOSE_FILE} \

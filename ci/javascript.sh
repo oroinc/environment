@@ -28,7 +28,7 @@ case "${STEP}" in
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php rm -f app/config/parameters.yml;
+    exec -T --user www-data php rm -f config/parameters.yml;
   ;;
   before_script)
     docker-compose \
