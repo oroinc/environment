@@ -35,7 +35,7 @@ case "${STEP}" in
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     exec -T --user www-data php \
-    rm -f app/config/parameters.yml app/config/parameters_test.yml;
+    rm -f config/parameters.yml config/parameters_test.yml;
     
     docker-compose \
     -f ${COMPOSE_FILE} \
@@ -52,7 +52,7 @@ case "${STEP}" in
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     exec -T --user www-data php \
-    cp app/config/parameters.yml app/config/parameters_test.yml;
+    cp config/parameters.yml config/parameters_test.yml;
     
     docker-compose \
     -f ${COMPOSE_FILE} \

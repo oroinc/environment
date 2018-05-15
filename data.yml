@@ -12,9 +12,9 @@ services:
   data-cache-named:
     image: oroinc/data-cache:latest
     volumes:
-      - "cache:/var/www/html/application/app/cache/"
+      - "cache:/var/www/html/application/var/cache/"
 
   data-cache-anonymous:
     image: oroinc/data-cache:latest
     volumes:
-      - "/var/www/html/application/app/cache/"
+      - "/var/www/html/application/var/cache/"
