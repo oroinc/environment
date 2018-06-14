@@ -32,11 +32,11 @@ fi
 
 while :
 do
-  info "Running 'php bin/console clank:server' command"
-  (php bin/console clank:server && {
-      info "Clank server finished with exit code: $?"
+  info "Running 'php bin/console gos:websocket:server' command"
+  (php bin/console gos:websocket:server && {
+      info "Websocket server finished with exit code: $?"
     }) || {
-    error "Clank server failed with exit code: $?"
+    error "Websocket server failed with exit code: $?"
   }
   info "Restarting in 15 seconds..."
   sleep 15
