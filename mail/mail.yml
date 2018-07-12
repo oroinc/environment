@@ -6,6 +6,9 @@ services:
     expose:
       - "25"
       - "80"
+    ports:
+      - "1025"
+      - "1080"
     environment:
       - MH_SMTP_BIND_ADDR=0.0.0.0:1025
       - MH_UI_BIND_ADDR=0.0.0.0:1080
