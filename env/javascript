@@ -1,3 +1,3 @@
-NPM_CONFIG_CACHE=/var/www/html/application/app/cache/.npm
+NPM_CONFIG_CACHE=/var/www/html/application/var/cache/.npm
 SYMFONY_ENV=prod
 SYMFONY_DEBUG=0

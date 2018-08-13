@@ -14,8 +14,8 @@ echo "export SYMFONY_ENV=${SYMFONY_ENV}" | tee -a ~/.bashrc
 
 # If xdebug enabled link a xdebug.ini
 if [[ ! -z ${XDEBUG_ENABLED} ]] && [[ ${#XDEBUG_ENABLED} -gt 0 ]] && [[ ${XDEBUG_ENABLED} != "false" ]] && [[ ${XDEBUG_ENABLED} != "0" ]]; then
-  ln -sf /etc/php/current/mods-available/opcache.ini /etc/php/current/fpm/conf.d/20-xdebug.ini
-  ln -sf /etc/php/current/mods-available/opcache.ini /etc/php/current/cli/conf.d/20-xdebug.ini
+  ln -sf /etc/php/current/mods-available/xdebug.ini /etc/php/current/fpm/conf.d/20-xdebug.ini
+  ln -sf /etc/php/current/mods-available/xdebug.ini /etc/php/current/cli/conf.d/20-xdebug.ini
   info "Xdebug enabled"
 else
   if [[ $(find /etc/php/current/*/conf.d | grep -c "xdebug.ini") -gt 0 ]]; then

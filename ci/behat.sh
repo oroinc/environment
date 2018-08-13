@@ -29,7 +29,7 @@ case "${STEP}" in
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     exec -T --user www-data php \
-    rm -f app/config/parameters.yml behat.yml;
+    rm -f config/parameters.yml behat.yml;
     
     docker-compose \
     -f ${COMPOSE_FILE} \
@@ -45,7 +45,7 @@ case "${STEP}" in
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php bash -c 'echo -e "\noro_form: {settings: { wysiwyg_enabled: { value: false } }}\nimports:" >> app/config/parameters.yml; find -L vendor/oro -type f -iname "parameters.yml" -ipath "**Tests/Behat**" -exec echo "  - { resource: ./../../{} }" >> app/config/parameters.yml \;';
+    exec -T --user www-data php bash -c 'echo -e "\noro_form: {settings: { wysiwyg_enabled: { value: false } }}\nimports:" >> config/parameters.yml; find -L vendor/oro -type f -iname "parameters.yml" -ipath "**Tests/Behat**" -exec echo "  - { resource: ./../../{} }" >> config/parameters.yml \;';
 
     docker-compose \
     -f ${COMPOSE_FILE} \
@@ -75,7 +75,7 @@ case "${STEP}" in
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     exec -T --user www-data php php bin/behat -vvv -s OroInstallerBundle \
-    -f pretty -o std -f junit -o /var/www/html/application/app/logs/${PROJECT_NAME}/ --strict --colors;
+    -f pretty -o std -f junit -o /var/www/html/application/var/logs/${PROJECT_NAME}/ --strict --colors;
   ;;
   before_script)
     CONTAINER_ID=$(docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME} ps -q database);
@@ -86,12 +86,12 @@ case "${STEP}" in
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     exec -T --user www-data php php bin/behat --available-suites | grep -iv OroInstallerBundle | uniq | sort | grep -iv 'SYMFONY_ENV' | tr -d '\r' \
-    >> "${ORO_APP}/app/logs/${PROJECT_NAME}/testsuites.log";
+    >> "${ORO_APP}/var/logs/${PROJECT_NAME}/testsuites.log";
     
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    logs --no-color --timestamps >> "${ORO_APP}/app/logs/${PROJECT_NAME}/docker.log";
+    logs --no-color --timestamps >> "${ORO_APP}/var/logs/${PROJECT_NAME}/docker.log";
     
     docker-compose \
     -f ${COMPOSE_FILE} \
@@ -101,26 +101,26 @@ case "${STEP}" in
   script)
     if [ -z "${TEST_RUNNER_OPTIONS}" ]; then
       seq ${PARALLEL_PROCESSES} | COMPOSE_FILE=${COMPOSE_FILE} PROJECT_NAME=${PROJECT_NAME} PATCH=${PROJECT_NAME} \
-      parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/app/logs/${PROJECT_NAME}/parallel_cache.log" -j ${PARALLEL_PROCESSES} \
+      parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/var/logs/${PROJECT_NAME}/parallel_cache.log" -j ${PARALLEL_PROCESSES} \
       'docker volume create --name ${PROJECT_NAME:-behat}_cache{%};
       docker run --rm -i -v ${PROJECT_NAME:-behat}_cache0:/from -v ${PROJECT_NAME:-behat}_cache{%}:/to oroinc/data-cache ash -c "cd /to ; cp -ra /from/* .";';
       
       seq ${PARALLEL_PROCESSES} | COMPOSE_FILE=${COMPOSE_FILE} PROJECT_NAME=${PROJECT_NAME} PATCH=${PROJECT_NAME} \
-      parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/app/logs/${PROJECT_NAME}/parallel_up.log" -j ${PARALLEL_PROCESSES} \
+      parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/var/logs/${PROJECT_NAME}/parallel_up.log" -j ${PARALLEL_PROCESSES} \
       'SUB_NETWORK={%} CACHE_VOLUME={%} docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} up --no-color -d;';
       
       COMPOSE_FILE=${COMPOSE_FILE} PROJECT_NAME=${PROJECT_NAME} PATCH=${PROJECT_NAME} \
-      parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/app/logs/${PROJECT_NAME}/parallel_behat.log" -j ${PARALLEL_PROCESSES} -a "${ORO_APP}/app/logs/${PROJECT_NAME}/testsuites.log" \
-      'SUB_NETWORK={%} CACHE_VOLUME={%} docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} exec -T --user www-data php bin/behat -vvv -s {} -f pretty -o std -f junit -o /var/www/html/application/app/logs/${PROJECT_NAME}/ --strict --colors;';
+      parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/var/logs/${PROJECT_NAME}/parallel_behat.log" -j ${PARALLEL_PROCESSES} -a "${ORO_APP}/var/logs/${PROJECT_NAME}/testsuites.log" \
+      'SUB_NETWORK={%} CACHE_VOLUME={%} docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} exec -T --user www-data php bin/behat -vvv -s {} -f pretty -o std -f junit -o /var/www/html/application/var/logs/${PROJECT_NAME}/ --strict --colors;';
       
       seq ${PARALLEL_PROCESSES} | COMPOSE_FILE=${COMPOSE_FILE} PROJECT_NAME=${PROJECT_NAME} PATCH=${PROJECT_NAME} \
-      parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/app/logs/${PROJECT_NAME}/parallel_log.log" -j ${PARALLEL_PROCESSES} \
-      'SUB_NETWORK={%} CACHE_VOLUME={%} docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} logs --no-color --timestamps >> ${ORO_APP}/app/logs/${PROJECT_NAME}/docker.log 2>&1;';
+      parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/var/logs/${PROJECT_NAME}/parallel_log.log" -j ${PARALLEL_PROCESSES} \
+      'SUB_NETWORK={%} CACHE_VOLUME={%} docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} logs --no-color --timestamps >> ${ORO_APP}/var/logs/${PROJECT_NAME}/docker.log 2>&1;';
     else
       docker-compose \
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
-      exec -T --user www-data php php bin/behat -vvv "${TEST_RUNNER_OPTIONS}" -f pretty -o std -f junit -o /var/www/html/application/app/logs/${PROJECT_NAME}/ --strict --no-colors;
+      exec -T --user www-data php php bin/behat -vvv "${TEST_RUNNER_OPTIONS}" -f pretty -o std -f junit -o /var/www/html/application/var/logs/${PROJECT_NAME}/ --strict --no-colors;
     fi
   ;;
   after_script)

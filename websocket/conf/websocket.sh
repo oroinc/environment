@@ -11,7 +11,7 @@ error () {
 }
 
 is_installed () {
-  if [[ -f app/config/parameters.yml ]] && [[ $(grep ".*installed:\s*[\']\{0,1\}[a-zA-Z0-9\:\+\-]\{1,\}[\']\{0,1\}" app/config/parameters.yml | grep -c "null\|false") -eq 0 ]]; then
+  if [[ -f config/parameters.yml ]] && [[ $(grep ".*installed:\s*[\']\{0,1\}[a-zA-Z0-9\:\+\-]\{1,\}[\']\{0,1\}" config/parameters.yml | grep -c "null\|false") -eq 0 ]]; then
     return 0
   else
     return 1
@@ -32,11 +32,11 @@ fi
 
 while :
 do
-  info "Running 'php app/console clank:server' command"
-  (php app/console clank:server && {
-      info "Clank server finished with exit code: $?"
+  info "Running 'php bin/console gos:websocket:server' command"
+  (php bin/console gos:websocket:server && {
+      info "Websocket server finished with exit code: $?"
     }) || {
-    error "Clank server failed with exit code: $?"
+    error "Websocket server failed with exit code: $?"
   }
   info "Restarting in 15 seconds..."
   sleep 15

@@ -13,7 +13,7 @@ COMMIT_RANGE=${COMMIT_RANGE:-"origin/$CHANGE_TARGET...$(git rev-parse --verify H
 ORO_TEST_SUITE=${1:-unit}
 ORO_APP=${2:-application/platform}
 PROJECT_NAME="${PROJECT_NAME-$(ORO=true env | grep ORO | md5sum | awk '{print $1}' | cut -b 1-7)}"
-DIR_DIFF="${DIR_DIFF-${ORO_APP}/app/logs/${PROJECT_NAME}}"
+DIR_DIFF="${DIR_DIFF-${ORO_APP}/var/logs/${PROJECT_NAME}}"
 FILE_DIFF="${FILE_DIFF-diff.log}"
 
 # path to application
@@ -64,7 +64,7 @@ documentation)
 javascript)
   echo "Defining strategy for JS Tests..."
   set +e
-  files=$(grep -e "\.js$" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF")
+  files=$(grep -e "\.js$" -e "\.js\.dist$" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF")
   set -e
   if [[ "${files}" ]]; then
     echo "Changes were detected"
@@ -74,6 +74,17 @@ javascript)
   ;;
 php_code_style)
   echo "Defining strategy for CS Tests..."
+  set +e
+  files=$(grep -e "\.php$" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF")
+  set -e
+  if [[ "${files}" ]]; then
+    echo "Changes were detected"
+  else
+    echo "Changes weren't detected. Build is not required"
+  fi
+  ;;
+sql_injection_analysis)
+  echo "Defining strategy for SQL injection Tests..."
   set +e
   files=$(grep -e "\.php$" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF")
   set -e

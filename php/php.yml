@@ -10,6 +10,7 @@ services:
       - BLACKFIRE_SERVER_TOKEN
       - SYMFONY_ENV
       - SYMFONY_DEBUG
+      - XDEBUG_ENABLED
     cap_add:
       - SYS_PTRACE
 

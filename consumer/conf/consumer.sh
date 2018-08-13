@@ -11,7 +11,7 @@ error () {
 }
 
 is_installed () {
-  if [[ -f app/config/parameters.yml ]] && [[ $(grep ".*installed:\s*[\']\{0,1\}[a-zA-Z0-9\:\+\-]\{1,\}[\']\{0,1\}" app/config/parameters.yml | grep -c "null\|false") -eq 0 ]]; then
+  if [[ -f config/parameters.yml ]] && [[ $(grep ".*installed:\s*[\']\{0,1\}[a-zA-Z0-9\:\+\-]\{1,\}[\']\{0,1\}" config/parameters.yml | grep -c "null\|false") -eq 0 ]]; then
     return 0
   else
     return 1
@@ -39,7 +39,7 @@ fi
 while :
 do
   info "Running '$CMD' command"
-  (php app/console ${CMD} && {
+  (php bin/console ${CMD} && {
       info "Consumer finished with exit code: $?"
     }) || {
     error "Consumer failed with exit code: $?"
