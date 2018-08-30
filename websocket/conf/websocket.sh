@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
 
+BIN_CONSOLE="app/console"
+CONFIG_DIR="app/config"
+if [[ ! -f ${BIN_CONSOLE} ]]
+then
+  BIN_CONSOLE="bin/console"
+  CONFIG_DIR="config"
+fi
+
+CMD="gos:websocket:server"
+if [[ ! -f "vendor/gos/web-socket-bundle/GosWebSocketBundle.php" ]]
+then
+  CMD="clank:server"
+fi
+
 [[ ! -z ${DEBUG} ]] && set -x
 
 info () {
@@ -11,7 +25,7 @@ error () {
 }
 
 is_installed () {
-  if [[ -f config/parameters.yml ]] && [[ $(grep ".*installed:\s*[\']\{0,1\}[a-zA-Z0-9\:\+\-]\{1,\}[\']\{0,1\}" config/parameters.yml | grep -c "null\|false") -eq 0 ]]; then
+  if [[ -f ${CONFIG_DIR}/parameters.yml ]] && [[ $(grep ".*installed:\s*[\']\{0,1\}[a-zA-Z0-9\:\+\-]\{1,\}[\']\{0,1\}" ${CONFIG_DIR}/parameters.yml | grep -c "null\|false") -eq 0 ]]; then
     return 0
   else
     return 1
@@ -32,8 +46,8 @@ fi
 
 while :
 do
-  info "Running 'php bin/console gos:websocket:server' command"
-  (php bin/console gos:websocket:server && {
+    info "Running 'php $BIN_CONSOLE $CMD' command"
+  (php ${BIN_CONSOLE} ${CMD} && {
       info "Websocket server finished with exit code: $?"
     }) || {
     error "Websocket server failed with exit code: $?"

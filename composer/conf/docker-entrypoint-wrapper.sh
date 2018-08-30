@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+CONFIG_DIR="app/config"
+CACHE_DIR="app/cache"
+if [[ ! -f ${BIN_CONSOLE} ]]
+then
+  CONFIG_DIR="config"
+  CACHE_DIR="var/cache"
+fi
+
 info () {
   [[ ! -z "${ORO_VERBOSE}" ]] && printf "\033[0;36m===> \033[0;33m%s\033[0m\n" "$1"
 }
@@ -39,11 +47,11 @@ fi
 
 [[ $(stat -c '%u' "${COMPOSER_HOME}") != "${OWNER_UID}" ]] && chown -R "${OWNER_UID}:${OWNER_GID}" "${COMPOSER_HOME}"
 
-[[ ! -f /var/www/html/application/config/parameters.yml ]] \
-&& [[ -d /var/www/html/application/var/cache ]] \
-&& find /var/www/html/application/var/cache/* -maxdepth 1 -type d | awk  -F'/' '{print $NF}' | grep 'dev\|prod\|test' > /dev/null 2>&1 && {
+[[ ! -f "/var/www/html/application/$CONFIG_DIR/parameters.yml" ]] \
+&& [[ -d "/var/www/html/application/$CACHE_DIR" ]] \
+&& find /var/www/html/application/${CACHE_DIR}/* -maxdepth 1 -type d | awk  -F'/' '{print $NF}' | grep 'dev\|prod\|test' > /dev/null 2>&1 && {
   info "Possible the application cache is outdated, deleting..."
-  (rm -rf /var/www/html/application/var/cache/* && {
+  (rm -rf /var/www/html/application/${CACHE_DIR}/* && {
       info "Application cache for all environments deleted successfully"
     }) || {
     error "Can't delete application cache"

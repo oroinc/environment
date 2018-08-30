@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+BIN_CONSOLE="app/console"
+CONFIG_DIR="app/config"
+if [[ ! -f ${BIN_CONSOLE} ]]
+then
+  BIN_CONSOLE="bin/console"
+  CONFIG_DIR="config"
+fi
+
 [[ ! -z ${DEBUG} ]] && set -x
 
 info () {
@@ -11,7 +19,7 @@ error () {
 }
 
 is_installed () {
-  if [[ -f config/parameters.yml ]] && [[ $(grep ".*installed:\s*[\']\{0,1\}[a-zA-Z0-9\:\+\-]\{1,\}[\']\{0,1\}" config/parameters.yml | grep -c "null\|false") -eq 0 ]]; then
+  if [[ -f ${CONFIG_DIR}/parameters.yml ]] && [[ $(grep ".*installed:\s*[\']\{0,1\}[a-zA-Z0-9\:\+\-]\{1,\}[\']\{0,1\}" ${CONFIG_DIR}/parameters.yml | grep -c "null\|false") -eq 0 ]]; then
     return 0
   else
     return 1
@@ -39,7 +47,7 @@ fi
 while :
 do
   info "Running '$CMD' command"
-  (php bin/console ${CMD} && {
+  (php ${BIN_CONSOLE} ${CMD} && {
       info "Consumer finished with exit code: $?"
     }) || {
     error "Consumer failed with exit code: $?"

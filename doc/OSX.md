@@ -43,7 +43,7 @@ brew install docker docker-compose docker-machine
 sudo chown root:wheel /usr/local/bin/docker-machine-driver-xhyve
 sudo chmod u+s /usr/local/bin/docker-machine-driver-xhyve
 docker-machine create --driver=xhyve --xhyve-memory-size=12192 --xhyve-cpu-count=6 --xhyve-virtio-9p --xhyve-experimental-nfs-share default
-eval (docker-machine env default)
+eval $(docker-machine env default)
 
 ```
 
@@ -57,7 +57,7 @@ eval (docker-machine env default)
 brew cask install parallels-desktop
 brew install docker-machine-parallels
 docker-machine create --driver=parallels --parallels-memory=12192 --parallels-cpu-count=6 default
-eval (docker-machine env default)
+eval $(docker-machine env default)
 ```
 
 - http://kb.parallels.com/en/123356

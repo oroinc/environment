@@ -8,6 +8,16 @@ set -o nounset;
 DEBUG=${DEBUG-};
 if [[ "${DEBUG}" ]]; then set -o xtrace; fi
 
+BIN_CONSOLE="app/console"
+CONFIG_DIR="app/config"
+LOGS_DIR="app/logs"
+if [[ ! -f ${BIN_CONSOLE} ]]
+then
+  BIN_CONSOLE="bin/console"
+  CONFIG_DIR="config"
+  LOGS_DIR="var/logs"
+fi
+
 STEP=${1:-before_install};
 BUILD_DIR=${BUILD_DIR:-};
 ORO_APP=${ORO_APP:-};
@@ -28,7 +38,7 @@ case "${STEP}" in
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php rm -f config/parameters.yml;
+    exec -T --user www-data php rm -f ${CONFIG_DIR}/parameters.yml;
   ;;
   before_script)
     docker-compose \
@@ -63,19 +73,19 @@ case "${STEP}" in
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php php bin/console oro:localization:dump --no-ansi;
+    exec -T --user www-data php php ${BIN_CONSOLE} oro:localization:dump --no-ansi;
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php php bin/console oro:assets:install --no-ansi;
+    exec -T --user www-data php php ${BIN_CONSOLE} oro:assets:install --no-ansi;
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php php bin/console assetic:dump --no-ansi;
+    exec -T --user www-data php php ${BIN_CONSOLE} assetic:dump --no-ansi;
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php php bin/console oro:requirejs:build --no-ansi;
+    exec -T --user www-data php php ${BIN_CONSOLE} oro:requirejs:build --no-ansi;
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
@@ -84,7 +94,7 @@ case "${STEP}" in
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    logs --no-color --timestamps >> "${ORO_APP}/var/logs/${PROJECT_NAME}/docker.log";
+    logs --no-color --timestamps >> "${ORO_APP}/${LOGS_DIR}/${PROJECT_NAME}/docker.log";
   ;;
   after_script)
     set +e;

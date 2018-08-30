@@ -8,6 +8,16 @@ set -o nounset;
 DEBUG=${DEBUG-};
 if [[ "${DEBUG}" ]]; then set -o xtrace; fi
 
+BIN_CONSOLE="app/console"
+CONFIG_DIR="app/config"
+LOGS_DIR="app/logs"
+if [[ ! -f ${BIN_CONSOLE} ]]
+then
+  BIN_CONSOLE="bin/console"
+  CONFIG_DIR="config"
+  LOGS_DIR="var/logs"
+fi
+
 STEP=${1:-before_install};
 BUILD_DIR=${BUILD_DIR:-};
 UPGRADE=${UPGRADE:-update};
@@ -35,7 +45,7 @@ case "${STEP}" in
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     exec -T --user www-data php \
-    rm -f config/parameters.yml config/parameters_test.yml;
+    rm -f ${CONFIG_DIR}/parameters.yml ${CONFIG_DIR}/parameters_test.yml;
     
     docker-compose \
     -f ${COMPOSE_FILE} \
@@ -52,7 +62,7 @@ case "${STEP}" in
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     exec -T --user www-data php \
-    cp config/parameters.yml config/parameters_test.yml;
+    cp ${CONFIG_DIR}/parameters.yml ${CONFIG_DIR}/parameters_test.yml;
     
     docker-compose \
     -f ${COMPOSE_FILE} \
@@ -70,7 +80,7 @@ case "${STEP}" in
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
       exec -T --user www-data php \
-      php bin/console "oro:platform:${UPGRADE}" \
+      php ${BIN_CONSOLE} "oro:platform:${UPGRADE}" \
       --no-interaction \
       --skip-assets \
       --skip-translations \
@@ -81,20 +91,20 @@ case "${STEP}" in
       docker-compose \
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
-      exec -T --user www-data php php bin/console oro:config:update --no-ansi oro_ui.application_url 'http://localhost/';
+      exec -T --user www-data php php ${BIN_CONSOLE} oro:config:update --no-ansi oro_ui.application_url 'http://localhost/';
       docker-compose \
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
-      exec -T --user www-data php php bin/console oro:config:update --no-ansi oro_website.url 'http://localhost/';
+      exec -T --user www-data php php ${BIN_CONSOLE} oro:config:update --no-ansi oro_website.url 'http://localhost/';
       docker-compose \
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
-      exec -T --user www-data php php bin/console oro:config:update --no-ansi oro_website.secure_url 'http://localhost/';
+      exec -T --user www-data php php ${BIN_CONSOLE} oro:config:update --no-ansi oro_website.secure_url 'http://localhost/';
     else
       docker-compose \
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
-      exec -T --user www-data php php bin/console oro:install \
+      exec -T --user www-data php php ${BIN_CONSOLE} oro:install \
       --no-interaction \
       --skip-assets \
       --skip-translations \
@@ -114,11 +124,11 @@ case "${STEP}" in
       docker-compose \
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
-      exec -T --user www-data php php bin/console oro:search:reindex --no-ansi;
+      exec -T --user www-data php php ${BIN_CONSOLE} oro:search:reindex --no-ansi;
       docker-compose \
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
-      exec -T --user www-data php php bin/console oro:website-search:reindex --no-ansi || true;
+      exec -T --user www-data php php ${BIN_CONSOLE} oro:website-search:reindex --no-ansi || true;
     fi
   ;;
   before_script)
@@ -126,7 +136,7 @@ case "${STEP}" in
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
     exec -T --user www-data php php bin/phpunit --testsuite=functional --group=schema,install --colors=always \
-    --log-junit=/var/www/html/application/var/logs/${PROJECT_NAME}/functional.schema.xml;
+    --log-junit=/var/www/html/application/${LOGS_DIR}/${PROJECT_NAME}/functional.schema.xml;
     
     if [ -z "${TEST_RUNNER_OPTIONS}" ]; then
       CONTAINER_ID=$(docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME} ps -q database);
@@ -141,12 +151,12 @@ case "${STEP}" in
       docker-compose \
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
-      exec -T --user www-data php bash -c 'find -L vendor/oro -type d -ipath **tests/functional | uniq | sort | grep -iv SYMFONY_ENV | tr -d "\r" | tee /var/www/html/application/var/logs/'"${PROJECT_NAME}"'/testsuites.log >> /dev/null';
+      exec -T --user www-data php bash -c 'find -L vendor/oro -type d -ipath **tests/functional | uniq | sort | grep -iv SYMFONY_ENV | tr -d "\r" | tee /var/www/html/application/${LOGS_DIR}/'"${PROJECT_NAME}"'/testsuites.log >> /dev/null';
       
       docker-compose \
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
-      logs --no-color --timestamps >> "${ORO_APP}/var/logs/${PROJECT_NAME}/docker.log";
+      logs --no-color --timestamps >> "${ORO_APP}/${LOGS_DIR}/${PROJECT_NAME}/docker.log";
       
       docker-compose \
       -f ${COMPOSE_FILE} \
@@ -157,26 +167,26 @@ case "${STEP}" in
   script)
     if [ -z "${TEST_RUNNER_OPTIONS}" ]; then
       seq ${PARALLEL_PROCESSES} | COMPOSE_FILE=${COMPOSE_FILE} PROJECT_NAME=${PROJECT_NAME} PATCH=${PROJECT_NAME} \
-      parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/var/logs/${PROJECT_NAME}/parallel_cache.log" -j ${PARALLEL_PROCESSES} \
+      parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/${LOGS_DIR}/${PROJECT_NAME}/parallel_cache.log" -j ${PARALLEL_PROCESSES} \
       'docker volume create --name ${PROJECT_NAME:-functional}_cache{%};
       docker run --rm -i -v ${PROJECT_NAME:-functional}_cache0:/from -v ${PROJECT_NAME:-functional}_cache{%}:/to oroinc/data-cache ash -c "cd /to ; cp -ra /from/* .";';
       
       seq ${PARALLEL_PROCESSES} | COMPOSE_FILE=${COMPOSE_FILE} PROJECT_NAME=${PROJECT_NAME} PATCH=${PROJECT_NAME} \
-      parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/var/logs/${PROJECT_NAME}/parallel_up.log" -j ${PARALLEL_PROCESSES} \
+      parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/${LOGS_DIR}/${PROJECT_NAME}/parallel_up.log" -j ${PARALLEL_PROCESSES} \
       'SUB_NETWORK={%} CACHE_VOLUME={%} docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} up --no-color -d;';
       
       COMPOSE_FILE=${COMPOSE_FILE} PROJECT_NAME=${PROJECT_NAME} PATCH=${PROJECT_NAME} \
-      parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/var/logs/${PROJECT_NAME}/parallel_functional.log" -j ${PARALLEL_PROCESSES} -a "${ORO_APP}/var/logs/${PROJECT_NAME}/testsuites.log" \
-      'SUB_NETWORK={%} CACHE_VOLUME={%} docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} exec -T --user www-data php php bin/phpunit --testsuite=functional {} --colors=always --log-junit=/var/www/html/application/var/logs/${PROJECT_NAME}/functional.{#}.xml;';
+      parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/${LOGS_DIR}/${PROJECT_NAME}/parallel_functional.log" -j ${PARALLEL_PROCESSES} -a "${ORO_APP}/${LOGS_DIR}/${PROJECT_NAME}/testsuites.log" \
+      'SUB_NETWORK={%} CACHE_VOLUME={%} docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} exec -T --user www-data php php bin/phpunit --testsuite=functional {} --colors=always --log-junit=/var/www/html/application/${LOGS_DIR}/${PROJECT_NAME}/functional.{#}.xml;';
       
       seq ${PARALLEL_PROCESSES} | COMPOSE_FILE=${COMPOSE_FILE} PROJECT_NAME=${PROJECT_NAME} PATCH=${PROJECT_NAME} \
-      parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/var/logs/${PROJECT_NAME}/parallel_log.log" -j ${PARALLEL_PROCESSES} \
-      'SUB_NETWORK={%} CACHE_VOLUME={%} docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} logs --no-color --timestamps >> ${ORO_APP}/var/logs/${PROJECT_NAME}/docker.log 2>&1;';
+      parallel --gnu -k --lb --env _ --joblog "${ORO_APP}/${LOGS_DIR}/${PROJECT_NAME}/parallel_log.log" -j ${PARALLEL_PROCESSES} \
+      'SUB_NETWORK={%} CACHE_VOLUME={%} docker-compose -f ${COMPOSE_FILE} -p ${PROJECT_NAME}_{%} logs --no-color --timestamps >> ${ORO_APP}/${LOGS_DIR}/${PROJECT_NAME}/docker.log 2>&1;';
     else
       docker-compose \
       -f ${COMPOSE_FILE} \
       -p ${PROJECT_NAME} \
-      exec -T --user www-data php php bin/phpunit --testsuite=functional "${TEST_RUNNER_OPTIONS}" --colors=always --log-junit="/var/www/html/application/var/logs/${PROJECT_NAME}/functional.xml";
+      exec -T --user www-data php php bin/phpunit --testsuite=functional "${TEST_RUNNER_OPTIONS}" --colors=always --log-junit="/var/www/html/application/${LOGS_DIR}/${PROJECT_NAME}/functional.xml";
     fi
   ;;
   after_script)
