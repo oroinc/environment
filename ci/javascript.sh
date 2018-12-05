@@ -77,11 +77,11 @@ case "${STEP}" in
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php php ${BIN_CONSOLE} oro:assets:install --no-ansi;
+    exec -T --user www-data php php ${BIN_CONSOLE} assets:install --no-ansi;
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php php ${BIN_CONSOLE} assetic:dump --no-ansi;
+    exec -T --user www-data php php ${BIN_CONSOLE} oro:assets:build --no-ansi;
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
