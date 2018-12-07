@@ -97,7 +97,7 @@ sql_injection_analysis)
 behat)
   echo "Defining strategy for Behat Tests..."
   set +e
-  files=$(grep -e "^application/" -e "^package/" -e "^environment/" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF" | grep -v -E "\.(msi|ods|psd|bat|gif|gitignore|gitkeep|html|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy)$")
+  files=$(grep -e "^application/" -e "^package/" -e "^environment/" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF" | grep -v -E "\.(msi|ods|psd|bat|gif|gitignore|gitkeep|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy)$")
   set -e
   if [[ "${files}" ]]; then
     echo "Changes were detected"
@@ -108,7 +108,7 @@ behat)
 behat_wiring)
   echo "Defining strategy for behat_wiring Tests..."
   set +e
-  files=$(grep -e "^application/" -e "^package/" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF" | grep -v -E "\.(msi|ods|psd|bat|gif|gitignore|gitkeep|html|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy)$")
+  files=$(grep -e "^application/" -e "^package/" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF" | grep -v -E "\.(msi|ods|psd|bat|gif|gitignore|gitkeep|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy)$")
   set -e
   if [[ "${files}" ]]; then
     echo "Changes were detected"
