@@ -5,7 +5,7 @@
 GIVEN I have GIT installed
  AND I have docker installed
  AND I have docker-compose installed
-WHEN I do git clone https://github.com/oroinc/envornment
+WHEN I do git clone https://github.com/oroinc/environment
  AND Go to application folder (application/platform)
  AND Run docker-compose up -d
 THEN webserver, php, DB containers are created
@@ -18,7 +18,7 @@ THEN webserver, php, DB containers are created
 GIVEN I have GIT installed
  AND I have docker installed
  AND I have docker-compose installed
-WHEN I do git clone https://github.com/oroinc/envornment
+WHEN I do git clone https://github.com/oroinc/environment
  AND Go to application folder (application/platform)
  AND Run docker-compose up -d
  AND Run install script
@@ -31,7 +31,7 @@ THEN webserver, php, DB containers are created
 GIVEN GIT is installed
  AND docker installed
  AND docker-compose installed
-WHEN Do git clone https://github.com/oroinc/envornment
+WHEN Do git clone https://github.com/oroinc/environment
  AND Open application folder (application/platform)
  AND Run docker-compose up -d
  AND Run install script

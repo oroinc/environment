@@ -17,7 +17,7 @@ A [Dockerized](https://www.docker.com) development environment for applications 
 
 1. Clone repository to your local machine  
     ```
-    git clone git@github.com:oroinc/envornment.git ~/orodev
+    git clone git@github.com:oroinc/environment.git ~/orodev
     ```
   
 2. Configure GitHub token for current project. To retrieve new token [follow by this link](https://github.com/settings/tokens/new?scopes=repo&description=Composer+OroEnv).
