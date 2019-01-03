@@ -83,6 +83,17 @@ php_code_style)
     echo "Changes weren't detected. Build is not required"
   fi
   ;;
+sql_injection_analysis)
+  echo "Defining strategy for SQL injection Tests..."
+  set +e
+  files=$(grep -e "\.php$" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF")
+  set -e
+  if [[ "${files}" ]]; then
+    echo "Changes were detected"
+  else
+    echo "Changes weren't detected. Build is not required"
+  fi
+  ;;
 behat)
   echo "Defining strategy for Behat Tests..."
   set +e
