@@ -10,4 +10,4 @@ RUN pip install --upgrade -r /requirements.txt
 VOLUME ['/documentation']
 WORKDIR '/documentation'
 
-CMD sphinx-build -nW -b html -d _build/doctrees . _build/html
+CMD sphinx-build -n -w sphinx-build-errors.log  -b html -d _build/doctrees . _build/html
