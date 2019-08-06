@@ -28,7 +28,7 @@ git diff --name-only --diff-filter=ACMR "${COMMIT_RANGE}" >>"$DIR_DIFF/$FILE_DIF
 popd
 
 case "${ORO_TEST_SUITE}" in
-functional)
+functional | load_demo)
   echo "Defining strategy for Functional Tests..."
   set +e
   files=$(grep -e "^application/" -e "^package/" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF" | grep -v -E "\.(feature|msi|ods|psd|bat|gif|gitignore|gitkeep|html|jpg|jpeg|md|mp4|png|py|rst|txt|gliffy|css|js|less|scss|cur|eot|ico|svg|ttf|woff|woff2|xlsx)$")
