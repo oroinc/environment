@@ -8,6 +8,7 @@ services:
       - "${BUILD_DIR:-.}/.composer/auth:/usr/local/composer/auth"
       - "${ORO_APP}:/var/www/html/application"
       - "${ORO_APP}/../../package:/var/www/package"
+      - "${ORO_APP}/../../documentation:/var/www/documentation"
 
   data-cache-named:
     image: oroinc/data-cache:latest
