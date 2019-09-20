@@ -12,7 +12,7 @@ function requirement {
   test 0 -lt $($1 | grep -ie $2 | wc -l) || (echo "$1 $2 required" && exit 1);
 }
 
-requirement 'docker --version' '1[7-8]\.[0-9][0-9]';
+requirement 'docker --version' '1[7-9]\.[0-9][0-9]';
 requirement 'docker-compose --version' '1\.1[0-9]';
 requirement 'parallel --version' '2017';
 
