@@ -9,7 +9,7 @@ DEBUG=${DEBUG-};
 if [[ "${DEBUG}" ]]; then set -o xtrace; fi
 
 STEP=${1:-before_install};
-IMAGE=oroinc/documentation:sphinx-warning-file;
+IMAGE=oroinc/documentation:orodoc-2.0;
 ORO_APP=${ORO_APP:-};
 SPHINX_ERROR_FILENAME=${ORO_APP}/sphinx-build-errors.log;
 
