@@ -86,7 +86,7 @@ php_code_style)
 sql_injection_analysis)
   echo "Defining strategy for SQL injection Tests..."
   set +e
-  files=$(grep -e "\.(php|json)$" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF")
+  files=$(grep -Ee "\.(php|json)$" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF")
   set -e
   if [[ "${files}" ]]; then
     echo "Changes were detected"
