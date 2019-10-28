@@ -85,10 +85,6 @@ case "${STEP}" in
     docker-compose \
     -f ${COMPOSE_FILE} \
     -p ${PROJECT_NAME} \
-    exec -T --user www-data php php ${BIN_CONSOLE} oro:requirejs:build --no-ansi;
-    docker-compose \
-    -f ${COMPOSE_FILE} \
-    -p ${PROJECT_NAME} \
     exec -T --user www-data php vendor/oro/platform/build/node_modules/.bin/karma start vendor/oro/platform/build/karma.conf.js.dist --single-run;
     
     docker-compose \
