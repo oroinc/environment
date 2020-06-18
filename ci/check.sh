@@ -64,7 +64,7 @@ documentation)
 javascript)
   echo "Defining strategy for JS Tests..."
   set +e
-  files=$(grep -e "\.js$" -e "\.js\.dist$" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" "$DIR_DIFF/$FILE_DIFF")
+  files=$(grep -e "\.js$" -e "\.js\.dist$" -e "^environment/" -e "^Jenkinsfile" -e "^.jenkins" -e "requirejs.yml" -e  "jsmodules.yml" "$DIR_DIFF/$FILE_DIFF")
   set -e
   if [[ "${files}" ]]; then
     echo "Changes were detected"
